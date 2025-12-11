@@ -1,0 +1,5 @@
+{
+  "name": "Placement Portal",
+  "description": "A comprehensive placement management system connecting Students, Companies, and University Administration. Features role-based dashboards, job application tracking, and placement analytics.",
+  "requestFramePermissions": []
+}
