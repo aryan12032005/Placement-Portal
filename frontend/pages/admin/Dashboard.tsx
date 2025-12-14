@@ -1,29 +1,136 @@
 import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { StatsChart } from '../../components/StatsChart';
-import { User, Job } from '../../types';
-import { Users, Building2, TrendingUp, CheckCircle, Check, X } from 'lucide-react';
+import { User, Job, Application, ApplicationStatus } from '../../types';
+import { Users, Building2, TrendingUp, CheckCircle, Check, X, Briefcase, UserPlus, FileText } from 'lucide-react';
+
+interface Activity {
+  id: string;
+  type: 'job' | 'user' | 'application';
+  message: string;
+  timestamp: string;
+}
+
+interface BranchStat {
+  name: string;
+  placed: number;
+  total: number;
+}
 
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
     students: 0,
     companies: 0,
     jobs: 0,
-    placed: 12 // Mock placed count
+    placed: 0
   });
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
+  const [branchStats, setBranchStats] = useState<BranchStat[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  // Branch aliases for matching
+  const branchAliases: { [key: string]: string[] } = {
+    'CS': ['cse', 'cs', 'computer', 'btech cse', 'computer science'],
+    'IT': ['it', 'infotech', 'btech it', 'information technology'],
+    'ECE': ['ece', 'electronics', 'electronics and communication'],
+    'EEE': ['eee', 'electrical', 'electrical engineering'],
+    'MECH': ['mech', 'me', 'mechanical', 'mechanical engineering'],
+  };
+
+  const getBranchCategory = (branch: string): string | null => {
+    const branchLower = (branch || '').toLowerCase();
+    for (const [key, aliases] of Object.entries(branchAliases)) {
+      if (aliases.some(a => branchLower.includes(a))) {
+        return key;
+      }
+    }
+    return null;
+  };
 
   const loadData = async () => {
     const users = await Api.getAllUsers();
     const jobs = await Api.getJobs();
+    const applications = await Api.getApplications();
     const activeJobs = jobs.filter(j => j.status !== 'Stopped');
     
+    // Count placed students (those with OFFERED status)
+    const placedStudentIds = new Set(
+      applications.filter(a => a.status === ApplicationStatus.OFFERED).map(a => a.studentId)
+    );
+    
+    const students = users.filter(u => u.role === 'STUDENT');
+    const companies = users.filter(u => u.role === 'COMPANY');
+    
     setStats({
-      students: users.filter(u => u.role === 'STUDENT').length,
-      companies: users.filter(u => u.role === 'COMPANY').length,
+      students: students.length,
+      companies: companies.length,
       jobs: activeJobs.length,
-      placed: 15 // Mock data for demo
+      placed: placedStudentIds.size
     });
+
+    // Calculate branch-wise stats
+    const branchCounts: { [key: string]: { total: number; placed: number } } = {
+      'CS': { total: 0, placed: 0 },
+      'IT': { total: 0, placed: 0 },
+      'ECE': { total: 0, placed: 0 },
+      'EEE': { total: 0, placed: 0 },
+      'MECH': { total: 0, placed: 0 },
+    };
+
+    students.forEach(student => {
+      const category = getBranchCategory(student.branch || '');
+      if (category && branchCounts[category]) {
+        branchCounts[category].total++;
+        if (placedStudentIds.has(student.id)) {
+          branchCounts[category].placed++;
+        }
+      }
+    });
+
+    setBranchStats(
+      Object.entries(branchCounts).map(([name, data]) => ({
+        name,
+        total: data.total,
+        placed: data.placed
+      }))
+    );
+
+    // Build recent activities from real data
+    const recentActivities: Activity[] = [];
+    
+    // Add recent jobs
+    jobs.slice(-3).forEach(job => {
+      recentActivities.push({
+        id: `job-${job.id}`,
+        type: 'job',
+        message: `${job.companyName} posted a new job "${job.title}"`,
+        timestamp: job.postedDate
+      });
+    });
+
+    // Add recent registrations
+    companies.slice(-2).forEach(company => {
+      recentActivities.push({
+        id: `user-${company.id}`,
+        type: 'user',
+        message: `New company registration: "${company.companyName || company.name}"`,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    // Add recent applications
+    applications.slice(-2).forEach(app => {
+      recentActivities.push({
+        id: `app-${app.id}`,
+        type: 'application',
+        message: `${app.studentName} applied for ${app.jobTitle}`,
+        timestamp: app.appliedDate
+      });
+    });
+
+    // Sort by timestamp and take latest 5
+    recentActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    setActivities(recentActivities.slice(0, 5));
 
     setPendingUsers(users.filter(u => !u.approved && u.role !== 'ADMIN'));
   };
@@ -117,25 +224,29 @@ export const AdminDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-800 mb-6">Placement Statistics (Branch-wise)</h2>
           <div className="h-64 w-full">
-            <StatsChart />
+            <StatsChart data={branchStats} />
           </div>
         </div>
         
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
           <h2 className="text-lg font-bold text-slate-800 mb-4">Recent Activities</h2>
           <div className="space-y-4">
-             <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                <p className="text-slate-600">Tech Corp posted a new job "Software Engineer I".</p>
-             </div>
-             <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
-                <p className="text-slate-600">John Doe updated their profile.</p>
-             </div>
-             <div className="flex gap-3 text-sm">
-                <div className="w-2 h-2 rounded-full bg-orange-500 mt-2"></div>
-                <p className="text-slate-600">New Company registration: "Innovate AI".</p>
-             </div>
+            {activities.length > 0 ? (
+              activities.map((activity) => (
+                <div key={activity.id} className="flex gap-3 text-sm">
+                  <div className={`w-2 h-2 rounded-full mt-2 ${
+                    activity.type === 'job' ? 'bg-blue-500' : 
+                    activity.type === 'user' ? 'bg-orange-500' : 'bg-green-500'
+                  }`}></div>
+                  <div>
+                    <p className="text-slate-600">{activity.message}</p>
+                    <p className="text-xs text-slate-400">{new Date(activity.timestamp).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-slate-500 text-sm">No recent activities</p>
+            )}
           </div>
         </div>
       </div>

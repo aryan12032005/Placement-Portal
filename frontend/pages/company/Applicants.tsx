@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Application, ApplicationStatus, Job, User } from '../../types';
-import { Download, Check, X, Eye, GraduationCap, Mail, Phone } from 'lucide-react';
+import { Download, Check, X, Eye, GraduationCap, Mail, Phone, Award } from 'lucide-react';
 
 export const Applicants: React.FC = () => {
   const { user } = useAuth();
@@ -117,6 +117,12 @@ export const Applicants: React.FC = () => {
                         className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100" title="Shortlist"
                       >
                         <Check size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange(app.id, ApplicationStatus.OFFERED)}
+                        className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100" title="Send Offer"
+                      >
+                        <Award size={16} />
                       </button>
                       <button 
                         onClick={() => handleStatusChange(app.id, ApplicationStatus.REJECTED)}

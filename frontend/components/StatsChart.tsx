@@ -1,15 +1,25 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'CS', placed: 45, total: 60 },
-  { name: 'IT', placed: 35, total: 50 },
-  { name: 'ECE', placed: 25, total: 55 },
-  { name: 'EEE', placed: 15, total: 40 },
-  { name: 'MECH', placed: 10, total: 45 },
+interface BranchData {
+  name: string;
+  placed: number;
+  total: number;
+}
+
+interface StatsChartProps {
+  data?: BranchData[];
+}
+
+const defaultData: BranchData[] = [
+  { name: 'CS', placed: 0, total: 0 },
+  { name: 'IT', placed: 0, total: 0 },
+  { name: 'ECE', placed: 0, total: 0 },
+  { name: 'EEE', placed: 0, total: 0 },
+  { name: 'MECH', placed: 0, total: 0 },
 ];
 
-export const StatsChart: React.FC = () => {
+export const StatsChart: React.FC<StatsChartProps> = ({ data = defaultData }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart

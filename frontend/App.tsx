@@ -13,6 +13,8 @@ import { PostJob } from './pages/company/PostJob';
 import { Applicants } from './pages/company/Applicants';
 import { EditJob } from './pages/company/EditJob';
 import { AdminDashboard } from './pages/admin/Dashboard';
+import { UsersManagement } from './pages/admin/Users';
+import { StatsPage } from './pages/admin/Stats';
 import { UserRole } from './types';
 
 const App: React.FC = () => {
@@ -58,8 +60,8 @@ const App: React.FC = () => {
               <Layout>
                 <Routes>
                   <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="users" element={<div className="p-4">User Management Module (Placeholder)</div>} />
-                  <Route path="stats" element={<div className="p-4">Advanced Stats Module (Placeholder)</div>} />
+                  <Route path="users" element={<UsersManagement />} />
+                  <Route path="stats" element={<StatsPage />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
