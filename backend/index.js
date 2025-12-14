@@ -143,6 +143,30 @@ app.get('/api/users', protect, admin, async (req, res) => {
   }
 });
 
+// Get all students (for companies to view applicant details)
+app.get('/api/users/students', protect, async (req, res) => {
+  try {
+    const users = await User.find({ role: 'STUDENT' }).select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get user by ID
+app.get('/api/users/:id', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.put('/api/users/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

@@ -124,6 +124,40 @@ export const Api = {
     }
   },
 
+  getStudents: async (): Promise<User[]> => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/users/students`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch students');
+      const users = await response.json();
+      return users.map((u: any) => ({ ...u, id: u._id }));
+    } catch (error) {
+      console.error('Get students error:', error);
+      return [];
+    }
+  },
+
+  getUserById: async (userId: string): Promise<User | null> => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) return null;
+      const user = await response.json();
+      return { ...user, id: user._id };
+    } catch (error) {
+      console.error('Get user by id error:', error);
+      return null;
+    }
+  },
+
   approveUser: async (userId: string): Promise<void> => {
     try {
       const token = localStorage.getItem('token');
