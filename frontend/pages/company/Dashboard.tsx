@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Job, Application } from '../../types';
-import { Users, Briefcase, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Users, Briefcase, TrendingUp, Edit } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const CompanyDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
 
@@ -24,10 +25,24 @@ export const CompanyDashboard: React.FC = () => {
     loadData();
   }, [user]);
 
+  const handleStopRecruiting = async (jobId: string) => {
+    if (window.confirm('Are you sure you want to stop recruiting for this job?')) {
+      try {
+        await Api.stopRecruiting(jobId);
+        const allJobs = await Api.getJobs();
+        const myJobs = allJobs.filter(j => j.companyId === user?.id);
+        setJobs(myJobs);
+      } catch (error) {
+        alert('Failed to stop recruiting');
+      }
+    }
+  };
+
+  const activeJobs = jobs.filter(j => j.status !== 'Stopped');
   const stats = [
-    { label: 'Active Jobs', value: jobs.length, icon: Briefcase, color: 'bg-purple-500' },
+    { label: 'Active Jobs', value: activeJobs.length, icon: Briefcase, color: 'bg-purple-500' },
     { label: 'Total Applicants', value: applications.length, icon: Users, color: 'bg-blue-500' },
-    { label: 'Avg Applications', value: jobs.length ? Math.round(applications.length / jobs.length) : 0, icon: TrendingUp, color: 'bg-green-500' },
+    { label: 'Avg Applications', value: activeJobs.length ? Math.round(applications.length / activeJobs.length) : 0, icon: TrendingUp, color: 'bg-green-500' },
   ];
 
   return (
@@ -65,6 +80,7 @@ export const CompanyDashboard: React.FC = () => {
                 <th className="px-6 py-4 font-medium">Posted Date</th>
                 <th className="px-6 py-4 font-medium">Applicants</th>
                 <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -73,7 +89,27 @@ export const CompanyDashboard: React.FC = () => {
                   <td className="px-6 py-4 font-medium text-slate-800">{job.title}</td>
                   <td className="px-6 py-4 text-slate-500">{new Date(job.postedDate).toLocaleDateString()}</td>
                   <td className="px-6 py-4">{applications.filter(a => a.jobId === job.id).length}</td>
-                  <td className="px-6 py-4"><span className="text-green-600 font-medium">Active</span></td>
+                  <td className="px-6 py-4">
+                    <span className={`font-medium ${job.status === 'Stopped' ? 'text-red-600' : 'text-green-600'}`}>
+                      {job.status || 'Active'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 flex gap-2">
+                    <button 
+                      onClick={() => navigate(`/company/edit-job/${job.id}`)}
+                      className="text-blue-600 hover:text-blue-800 font-medium text-xs border border-blue-200 bg-blue-50 px-3 py-1 rounded-full transition-colors flex items-center gap-1"
+                    >
+                      <Edit size={12} /> Edit
+                    </button>
+                    {job.status !== 'Stopped' && (
+                      <button 
+                        onClick={() => handleStopRecruiting(job.id)}
+                        className="text-red-600 hover:text-red-800 font-medium text-xs border border-red-200 bg-red-50 px-3 py-1 rounded-full transition-colors"
+                      >
+                        Stop Recruiting
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

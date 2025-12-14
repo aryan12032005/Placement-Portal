@@ -11,6 +11,7 @@ import { StudentProfile } from './pages/student/Profile';
 import { CompanyDashboard } from './pages/company/Dashboard';
 import { PostJob } from './pages/company/PostJob';
 import { Applicants } from './pages/company/Applicants';
+import { EditJob } from './pages/company/EditJob';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { UserRole } from './types';
 
@@ -45,6 +46,7 @@ const App: React.FC = () => {
                   <Route path="dashboard" element={<CompanyDashboard />} />
                   <Route path="post-job" element={<PostJob />} />
                   <Route path="applicants" element={<Applicants />} />
+                  <Route path="edit-job/:id" element={<EditJob />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

@@ -14,9 +14,15 @@ export interface User {
   // Student specific
   rollNumber?: string;
   branch?: string;
+  course?: string;
+  collegeName?: string;
+  graduationYear?: number;
+  educationStatus?: 'Pursuing' | 'Graduated' | 'Undergraduate';
   cgpa?: number;
   skills?: string[];
   resumeUrl?: string;
+  phone?: string;
+  linkedIn?: string;
 
   // Company specific
   companyName?: string;
@@ -45,6 +51,7 @@ export interface Job {
     branches: string[];
   };
   rounds: string[];
+  status?: 'Active' | 'Stopped';
 }
 
 export enum ApplicationStatus {
