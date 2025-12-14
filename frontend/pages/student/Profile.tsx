@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Api } from '../../services/api';
-import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2 } from 'lucide-react';
+import { uploadResume, deleteResume } from '../../services/supabase';
+import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2, Loader2 } from 'lucide-react';
 
 export const StudentProfile: React.FC = () => {
   const { user, login } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -47,10 +49,43 @@ export const StudentProfile: React.FC = () => {
     alert('Profile updated successfully!');
   };
 
-  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFormData({ ...formData, resumeUrl: `https://cloud-storage.com/${file.name}` });
+    if (file && user) {
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        alert('Please upload a PDF file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size should be less than 5MB');
+        return;
+      }
+
+      setUploading(true);
+      try {
+        const resumeUrl = await uploadResume(file, user.id);
+        if (resumeUrl) {
+          setFormData({ ...formData, resumeUrl });
+          alert('Resume uploaded successfully!');
+        } else {
+          alert('Failed to upload resume. Please check your Supabase configuration.');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to upload resume');
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const handleRemoveResume = async () => {
+    if (formData.resumeUrl) {
+      await deleteResume(formData.resumeUrl);
+      setFormData({ ...formData, resumeUrl: '' });
     }
   };
 
@@ -295,14 +330,21 @@ export const StudentProfile: React.FC = () => {
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-2">Resume</label>
             <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition-colors">
-              {formData.resumeUrl ? (
+              {uploading ? (
+                <div className="flex items-center justify-center gap-3 text-blue-600">
+                  <Loader2 size={24} className="animate-spin" />
+                  <span className="font-medium">Uploading to Supabase...</span>
+                </div>
+              ) : formData.resumeUrl ? (
                 <div className="flex items-center justify-center gap-3 text-green-600">
                   <FileText size={24} />
-                  <span className="font-medium">Resume Uploaded</span>
+                  <a href={formData.resumeUrl} target="_blank" rel="noopener noreferrer" className="font-medium hover:underline">
+                    View Resume
+                  </a>
                   {isEditing && (
                     <button 
                       type="button" 
-                      onClick={() => setFormData({...formData, resumeUrl: ''})}
+                      onClick={handleRemoveResume}
                       className="ml-4 text-sm text-red-500 hover:underline"
                     >
                       Remove
@@ -313,15 +355,15 @@ export const StudentProfile: React.FC = () => {
                 <>
                   <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleResumeUpload}
                     className="hidden"
                     id="resume-upload"
-                    disabled={!isEditing}
+                    disabled={!isEditing || uploading}
                   />
-                  <label htmlFor="resume-upload" className={`flex flex-col items-center gap-2 text-slate-500 ${isEditing ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+                  <label htmlFor="resume-upload" className={`flex flex-col items-center gap-2 text-slate-500 ${isEditing && !uploading ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
                     <Upload size={32} />
-                    <span>Click to upload resume (PDF/DOC)</span>
+                    <span>Click to upload resume (PDF, max 5MB)</span>
                   </label>
                 </>
               )}
