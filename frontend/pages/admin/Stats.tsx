@@ -173,120 +173,187 @@ export const StatsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-500">Loading statistics...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-medium">Loading statistics...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Placement Analytics</h1>
-        <p className="text-slate-500 text-sm mt-1">Comprehensive placement statistics and insights</p>
+    <div className="space-y-8">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-rose-600 via-pink-600 to-fuchsia-600 rounded-3xl p-8 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold mb-2">📊 Placement Analytics</h1>
+          <p className="text-white/80 text-lg">Comprehensive statistics and insights at a glance</p>
+        </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-5 rounded-xl text-white">
-          <div className="flex items-center justify-between mb-3">
-            <GraduationCap size={24} />
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded">Students</span>
+      {/* Key Metrics - Premium Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        {/* Students Card */}
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500"></div>
+          <div className="relative bg-white rounded-2xl p-5 shadow-xl shadow-blue-500/10 ring-1 ring-blue-400/20 hover:shadow-2xl transition-all duration-300 group-hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
+              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full blur-2xl"></div>
+            </div>
+            <div className="relative mb-3">
+              <div className="absolute inset-0 bg-blue-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <GraduationCap size={22} strokeWidth={2.5} />
+              </div>
+            </div>
+            <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">{stats.totalStudents}</p>
+            <p className="text-slate-600 font-semibold text-sm">Total Students</p>
           </div>
-          <p className="text-3xl font-bold">{stats.totalStudents}</p>
-          <p className="text-blue-100 text-sm">Total Registered</p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 p-5 rounded-xl text-white">
-          <div className="flex items-center justify-between mb-3">
-            <CheckCircle size={24} />
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{stats.placementRate}%</span>
+        {/* Placed Card */}
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500"></div>
+          <div className="relative bg-white rounded-2xl p-5 shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-400/20 hover:shadow-2xl transition-all duration-300 group-hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
+              <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-400 rounded-full blur-2xl"></div>
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <CheckCircle size={22} strokeWidth={2.5} />
+                </div>
+              </div>
+              <span className="text-xs font-bold bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 px-2.5 py-1 rounded-full">{stats.placementRate}%</span>
+            </div>
+            <p className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">{stats.placedStudents}</p>
+            <p className="text-slate-600 font-semibold text-sm">Students Placed</p>
           </div>
-          <p className="text-3xl font-bold">{stats.placedStudents}</p>
-          <p className="text-green-100 text-sm">Students Placed</p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-5 rounded-xl text-white">
-          <div className="flex items-center justify-between mb-3">
-            <Building2 size={24} />
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{stats.activeCompanies} active</span>
+        {/* Companies Card */}
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500"></div>
+          <div className="relative bg-white rounded-2xl p-5 shadow-xl shadow-orange-500/10 ring-1 ring-orange-400/20 hover:shadow-2xl transition-all duration-300 group-hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
+              <div className="w-full h-full bg-gradient-to-br from-orange-500 to-amber-400 rounded-full blur-2xl"></div>
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-orange-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-yellow-400 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Building2 size={22} strokeWidth={2.5} />
+                </div>
+              </div>
+              <span className="text-xs font-bold bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 px-2.5 py-1 rounded-full">{stats.activeCompanies} active</span>
+            </div>
+            <p className="text-3xl font-black bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">{stats.totalCompanies}</p>
+            <p className="text-slate-600 font-semibold text-sm">Companies</p>
           </div>
-          <p className="text-3xl font-bold">{stats.totalCompanies}</p>
-          <p className="text-orange-100 text-sm">Companies</p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-5 rounded-xl text-white">
-          <div className="flex items-center justify-between mb-3">
-            <Briefcase size={24} />
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded">{stats.activeJobs} active</span>
+        {/* Jobs Card */}
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-violet-500 to-pink-400 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500"></div>
+          <div className="relative bg-white rounded-2xl p-5 shadow-xl shadow-purple-500/10 ring-1 ring-purple-400/20 hover:shadow-2xl transition-all duration-300 group-hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
+              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-400 rounded-full blur-2xl"></div>
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-purple-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 via-violet-500 to-pink-400 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Briefcase size={22} strokeWidth={2.5} />
+                </div>
+              </div>
+              <span className="text-xs font-bold bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 px-2.5 py-1 rounded-full">{stats.activeJobs} active</span>
+            </div>
+            <p className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">{stats.totalJobs}</p>
+            <p className="text-slate-600 font-semibold text-sm">Jobs Posted</p>
           </div>
-          <p className="text-3xl font-bold">{stats.totalJobs}</p>
-          <p className="text-purple-100 text-sm">Jobs Posted</p>
         </div>
 
-        <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-5 rounded-xl text-white">
-          <div className="flex items-center justify-between mb-3">
-            <Target size={24} />
+        {/* Applications Card */}
+        <div className="relative group cursor-pointer">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-400 rounded-2xl opacity-0 group-hover:opacity-100 blur transition-all duration-500"></div>
+          <div className="relative bg-white rounded-2xl p-5 shadow-xl shadow-cyan-500/10 ring-1 ring-cyan-400/20 hover:shadow-2xl transition-all duration-300 group-hover:translate-y-[-2px]">
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
+              <div className="w-full h-full bg-gradient-to-br from-cyan-500 to-teal-400 rounded-full blur-2xl"></div>
+            </div>
+            <div className="relative mb-3">
+              <div className="absolute inset-0 bg-cyan-500 rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <Target size={22} strokeWidth={2.5} />
+              </div>
+            </div>
+            <p className="text-3xl font-black bg-gradient-to-r from-cyan-500 to-teal-500 bg-clip-text text-transparent">{stats.totalApplications}</p>
+            <p className="text-slate-600 font-semibold text-sm">Applications</p>
           </div>
-          <p className="text-3xl font-bold">{stats.totalApplications}</p>
-          <p className="text-cyan-100 text-sm">Applications</p>
         </div>
       </div>
 
       {/* Package Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp size={20} className="text-green-600" />
+            <div className="p-3 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl">
+              <TrendingUp size={20} className="text-white" />
             </div>
-            <span className="text-sm text-slate-500">Highest Package</span>
+            <span className="text-sm font-medium text-slate-500">Highest Package</span>
           </div>
-          <p className="text-2xl font-bold text-slate-800">₹{stats.highestPackage} LPA</p>
+          <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">₹{stats.highestPackage} LPA</p>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <IndianRupee size={20} className="text-blue-600" />
+            <div className="p-3 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl">
+              <IndianRupee size={20} className="text-white" />
             </div>
-            <span className="text-sm text-slate-500">Average Package</span>
+            <span className="text-sm font-medium text-slate-500">Average Package</span>
           </div>
-          <p className="text-2xl font-bold text-slate-800">₹{stats.avgPackage} LPA</p>
+          <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">₹{stats.avgPackage} LPA</p>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+        <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <TrendingDown size={20} className="text-orange-600" />
+            <div className="p-3 bg-gradient-to-br from-orange-400 to-rose-500 rounded-xl">
+              <TrendingDown size={20} className="text-white" />
             </div>
-            <span className="text-sm text-slate-500">Lowest Package</span>
+            <span className="text-sm font-medium text-slate-500">Lowest Package</span>
           </div>
-          <p className="text-2xl font-bold text-slate-800">₹{stats.lowestPackage} LPA</p>
+          <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">₹{stats.lowestPackage} LPA</p>
         </div>
       </div>
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Branch-wise Placements */}
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Branch-wise Placement</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"></span>
+            Branch-wise Placement
+          </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={branchData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
                 <Legend />
-                <Bar dataKey="students" fill="#e2e8f0" name="Total" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="placed" fill="#22c55e" name="Placed" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="students" fill="#e2e8f0" name="Total" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="placed" fill="#22c55e" name="Placed" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Application Status Pie */}
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Application Status Distribution</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full"></span>
+            Application Status Distribution
+          </h3>
           <div className="h-72 flex items-center justify-center">
             {statusData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -306,7 +373,7 @@ export const StatsPage: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -319,8 +386,11 @@ export const StatsPage: React.FC = () => {
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Company-wise Hiring */}
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Top Hiring Companies</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></span>
+            Top Hiring Companies
+          </h3>
           <div className="h-72">
             {companyData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -328,10 +398,10 @@ export const StatsPage: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
                   <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
-                  <Tooltip />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
                   <Legend />
-                  <Bar dataKey="applications" fill="#e2e8f0" name="Applications" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="offers" fill="#8b5cf6" name="Offers" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="applications" fill="#e2e8f0" name="Applications" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="offers" fill="#8b5cf6" name="Offers" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -341,16 +411,19 @@ export const StatsPage: React.FC = () => {
         </div>
 
         {/* Package Distribution */}
-        <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Package Distribution</h3>
+        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl transition-all">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></span>
+            Package Distribution
+          </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={packageData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="jobs" fill="#3b82f6" name="Number of Jobs" radius={[4, 4, 0, 0]} />
+                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+                <Bar dataKey="jobs" fill="#3b82f6" name="Number of Jobs" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -358,39 +431,42 @@ export const StatsPage: React.FC = () => {
       </div>
 
       {/* Branch-wise Table */}
-      <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">Detailed Branch Statistics</h3>
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-lg">
+        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"></span>
+          Detailed Branch Statistics
+        </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50">
+            <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-slate-600">Branch</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-600">Total Students</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-600">Placed</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-600">Applications</th>
-                <th className="px-4 py-3 text-center font-medium text-slate-600">Placement Rate</th>
+                <th className="px-4 py-4 text-left font-semibold text-slate-700 rounded-tl-xl">Branch</th>
+                <th className="px-4 py-4 text-center font-semibold text-slate-700">Total Students</th>
+                <th className="px-4 py-4 text-center font-semibold text-slate-700">Placed</th>
+                <th className="px-4 py-4 text-center font-semibold text-slate-700">Applications</th>
+                <th className="px-4 py-4 text-center font-semibold text-slate-700 rounded-tr-xl">Placement Rate</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {branchData.map((branch, i) => (
-                <tr key={i} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-800">{branch.name}</td>
-                  <td className="px-4 py-3 text-center text-slate-600">{branch.students}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-medium">
+                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-4 py-4 font-semibold text-slate-800">{branch.name}</td>
+                  <td className="px-4 py-4 text-center text-slate-600">{branch.students}</td>
+                  <td className="px-4 py-4 text-center">
+                    <span className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
                       {branch.placed}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-slate-600">{branch.applications}</td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-4 text-center text-slate-600">{branch.applications}</td>
+                  <td className="px-4 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="w-24 h-2.5 bg-slate-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-blue-500 rounded-full" 
+                          className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full" 
                           style={{ width: `${branch.rate}%` }}
                         />
                       </div>
-                      <span className="text-xs font-medium text-slate-600">{branch.rate}%</span>
+                      <span className="text-xs font-bold text-slate-600">{branch.rate}%</span>
                     </div>
                   </td>
                 </tr>

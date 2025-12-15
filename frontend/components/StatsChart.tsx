@@ -34,9 +34,9 @@ export const StatsChart: React.FC<StatsChartProps> = ({ data = defaultData }) =>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="name" />
         <YAxis />
-        <Tooltip cursor={{fill: 'transparent'}} />
-        <Bar dataKey="total" fill="#e2e8f0" name="Total Students" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="placed" fill="#3b82f6" name="Placed" radius={[4, 4, 0, 0]} />
+        <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+        <Bar dataKey="total" fill="#e2e8f0" name="Total Students" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="placed" fill="#8b5cf6" name="Placed" radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Job, Application } from '../../types';
-import { Briefcase, MapPin, IndianRupee, Clock } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Filter, Sparkles, Building2, Calendar } from 'lucide-react';
 
 export const StudentJobs: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [myApps, setMyApps] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,80 +93,135 @@ export const StudentJobs: React.FC = () => {
     alert('Applied successfully!');
   };
 
+  const filteredJobs = jobs.filter(job => 
+    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-slate-800">Available Jobs</h1>
-        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
-          My CGPA: {user?.cgpa} | Branch: {user?.branch}
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <Sparkles className="text-purple-500" /> Available Jobs
+          </h1>
+          <p className="text-slate-500">{jobs.length} opportunities waiting for you</p>
+        </div>
+        <div className="flex gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input 
+              type="text"
+              placeholder="Search jobs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none w-64 transition-all"
+            />
+          </div>
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
+            <span>CGPA: {user?.cgpa || 0}</span>
+            <span className="w-px h-4 bg-white/30"></span>
+            <span>{user?.branch || 'N/A'}</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {jobs.map((job) => {
+      {/* Jobs Grid */}
+      <div className="grid grid-cols-1 gap-5">
+        {filteredJobs.map((job) => {
           const isApplied = myApps.includes(job.id);
           const { eligible, reason } = checkEligibility(job);
           return (
-            <div key={job.id} className={`bg-white p-6 rounded-xl shadow-sm border ${eligible ? 'border-slate-100' : 'border-orange-200 bg-orange-50/30'} hover:shadow-md transition-all`}>
-              <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold text-slate-800">{job.title}</h3>
-                    {!eligible && (
-                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">{reason}</span>
-                    )}
+            <div 
+              key={job.id} 
+              className={`bg-white p-6 rounded-2xl shadow-lg border-2 transition-all hover:shadow-xl ${
+                isApplied ? 'border-green-200 bg-green-50/30' :
+                eligible ? 'border-slate-100 hover:border-purple-200' : 'border-orange-200 bg-orange-50/30'
+              }`}
+            >
+              <div className="flex flex-col lg:flex-row justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg ${
+                      isApplied ? 'bg-gradient-to-br from-green-500 to-emerald-500' :
+                      eligible ? 'bg-gradient-to-br from-purple-500 to-indigo-500' : 'bg-gradient-to-br from-orange-500 to-amber-500'
+                    }`}>
+                      {job.companyName.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h3 className="text-xl font-bold text-slate-800">{job.title}</h3>
+                        {isApplied && (
+                          <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold border border-green-200">
+                            <CheckCircle size={12} /> Applied
+                          </span>
+                        )}
+                        {!eligible && !isApplied && (
+                          <span className="text-xs bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold border border-orange-200">
+                            {reason}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-slate-500 font-medium flex items-center gap-1 mt-1">
+                        <Building2 size={14} /> {job.companyName}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-slate-500 font-medium mb-2">{job.companyName}</p>
                   
-                  <div className="flex flex-wrap gap-4 text-sm text-slate-600 my-4">
-                    <span className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl border border-emerald-200 text-sm font-medium">
                       <IndianRupee size={16} /> {job.package} LPA
                     </span>
-                    <span className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                    <span className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl border border-blue-200 text-sm font-medium">
                       <MapPin size={16} /> {job.location}
                     </span>
-                    <span className="flex items-center gap-1 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                    <span className="flex items-center gap-1.5 bg-purple-50 text-purple-700 px-4 py-2 rounded-xl border border-purple-200 text-sm font-medium">
                       <Clock size={16} /> {job.type}
+                    </span>
+                    <span className="flex items-center gap-1.5 bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-sm font-medium">
+                      <Calendar size={16} /> Deadline: {new Date(job.deadline).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <p className="text-slate-600 text-sm mb-4 line-clamp-2">{job.description}</p>
+                  <p className="text-slate-600 text-sm mt-4 line-clamp-2">{job.description}</p>
                   
-                  <div className="text-xs text-slate-500">
-                    <strong>Eligibility:</strong> {job.eligibility.minCGPA}+ CGPA, {job.eligibility.branches.join(', ')}
+                  <div className="mt-4 text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-lg inline-block">
+                    <strong>Eligibility:</strong> {job.eligibility.minCGPA}+ CGPA • {job.eligibility.branches.join(', ') || 'All branches'}
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 min-w-[140px]">
+                <div className="flex flex-col gap-3 min-w-[160px] justify-center">
                   {isApplied ? (
-                    <button disabled className="bg-green-100 text-green-700 px-6 py-2 rounded-lg font-medium text-sm text-center cursor-default">
-                      Applied
+                    <button disabled className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl font-semibold text-sm text-center cursor-default flex items-center justify-center gap-2 shadow-lg">
+                      <CheckCircle size={18} /> Applied
                     </button>
                   ) : (
                     <button 
                       onClick={() => handleApply(job)}
                       disabled={loading || !eligible}
-                      className={`px-6 py-2 rounded-lg font-medium text-sm transition-colors text-center ${
+                      className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all text-center shadow-lg ${
                         eligible 
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white hover:shadow-xl hover:scale-105 active:scale-95' 
                           : 'bg-slate-200 text-slate-500 cursor-not-allowed'
                       }`}
                     >
-                      {eligible ? 'Apply Now' : 'Not Eligible'}
+                      {eligible ? '🚀 Apply Now' : 'Not Eligible'}
                     </button>
                   )}
-                  <div className="text-xs text-center text-slate-400">
-                    Deadline: {new Date(job.deadline).toLocaleDateString()}
-                  </div>
                 </div>
               </div>
             </div>
           );
         })}
 
-        {jobs.length === 0 && (
-          <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-dashed border-slate-300">
-            No jobs available at the moment.
+        {filteredJobs.length === 0 && (
+          <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Briefcase className="text-slate-400" size={32} />
+            </div>
+            <p className="text-slate-500 font-medium">No jobs found</p>
+            <p className="text-slate-400 text-sm">Try adjusting your search</p>
           </div>
         )}
       </div>
