@@ -1,8 +1,10 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { StudentDashboard } from './pages/student/Dashboard';
@@ -14,18 +16,18 @@ import { Applicants } from './pages/company/Applicants';
 import { EditJob } from './pages/company/EditJob';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { UsersManagement } from './pages/admin/Users';
-import { StatsPage } from './pages/admin/Stats';
+import { Stats } from './pages/admin/Stats';
 import { UserRole } from './types';
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <HashRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          
-          <Route path="/" element={<Navigate to="/login" replace />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
           {/* Student Routes */}
           <Route path="/student/*" element={
@@ -61,15 +63,16 @@ const App: React.FC = () => {
                 <Routes>
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="users" element={<UsersManagement />} />
-                  <Route path="stats" element={<StatsPage />} />
+                  <Route path="stats" element={<Stats />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
           } />
 
         </Routes>
-      </HashRouter>
-    </AuthProvider>
+        </HashRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

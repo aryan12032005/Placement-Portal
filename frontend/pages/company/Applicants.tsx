@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Application, ApplicationStatus, Job, User } from '../../types';
 import { Download, Check, X, Eye, GraduationCap, Mail, Phone, Award, FileText, Linkedin } from 'lucide-react';
 
 export const Applicants: React.FC = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [applications, setApplications] = useState<Application[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -68,7 +70,7 @@ export const Applicants: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-indigo-600 rounded-xl p-6 text-white shadow-lg">
         <div className="flex justify-between items-center">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -98,50 +100,50 @@ export const Applicants: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+      <div className={`rounded-xl shadow-lg border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
         {loading ? (
           <div className="p-12 text-center">
-            <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-500">Loading applicants...</p>
+            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Loading applicants...</p>
           </div>
         ) : (
           <table className="w-full text-left text-sm">
-            <thead className="bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600">
+            <thead className={isDark ? 'bg-slate-700/50' : 'bg-slate-50'}>
               <tr>
-                <th className="px-6 py-4 font-semibold">Candidate</th>
-                <th className="px-6 py-4 font-semibold">Education</th>
-                <th className="px-6 py-4 font-semibold">Job Role</th>
-                <th className="px-6 py-4 font-semibold">CGPA</th>
-                <th className="px-6 py-4 font-semibold">Resume</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold">Action</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Candidate</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Education</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Role</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>CGPA</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Resume</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Status</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className={`divide-y ${isDark ? 'divide-slate-700' : 'divide-slate-100'}`}>
               {filteredApps.map((app) => {
                 const student = getStudentDetails(app.studentId);
                 return (
-                  <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={app.id} className={`transition-colors ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'}`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
                           {(app.studentName || 'S').charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">{app.studentName}</p>
-                          <p className="text-xs text-slate-500">{student?.collegeName || student?.email || 'Loading...'}</p>
+                          <p className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{app.studentName}</p>
+                          <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{student?.collegeName || student?.email || 'Loading...'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs">
-                        <p className="text-slate-700 font-medium">{student?.course || student?.branch || 'N/A'}</p>
-                        <p className="text-slate-400">{student?.educationStatus || 'Pursuing'} • {student?.graduationYear || 'N/A'}</p>
+                        <p className={`font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{student?.course || student?.branch || 'N/A'}</p>
+                        <p className={isDark ? 'text-slate-500' : 'text-slate-400'}>{student?.educationStatus || 'Pursuing'} • {student?.graduationYear || 'N/A'}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-600 font-medium">{app.jobTitle}</td>
+                    <td className={`px-6 py-4 font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{app.jobTitle}</td>
                     <td className="px-6 py-4">
-                      <span className="font-bold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{student?.cgpa || 'N/A'}</span>
+                      <span className="font-bold text-lg text-indigo-500">{student?.cgpa || 'N/A'}</span>
                     </td>
                     <td className="px-6 py-4">
                       {student?.resumeUrl ? (
@@ -149,47 +151,48 @@ export const Applicants: React.FC = () => {
                           href={student.resumeUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 font-medium"
+                          className="text-indigo-500 hover:text-indigo-600 flex items-center gap-1.5 font-medium"
                         >
                           <Download size={14} /> View
                         </a>
                       ) : (
-                        <span className="text-slate-400 text-xs">No resume</span>
+                        <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No resume</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${
-                        app.status === ApplicationStatus.SHORTLISTED ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700' : 
-                        app.status === ApplicationStatus.REJECTED ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-700' : 
-                        app.status === ApplicationStatus.OFFERED ? 'bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700' : 'bg-slate-100 text-slate-600'
+                        app.status === ApplicationStatus.SHORTLISTED ? 'bg-green-100 text-green-700' : 
+                        app.status === ApplicationStatus.REJECTED ? 'bg-red-100 text-red-700' : 
+                        app.status === ApplicationStatus.OFFERED ? 'bg-purple-100 text-purple-700' : 
+                        isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                       }`}>{app.status === ApplicationStatus.OFFERED ? '🎉 ' : ''}{app.status}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button 
                           onClick={() => handleViewProfile(app.studentId)}
-                          className="p-2 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:from-blue-100 hover:to-indigo-100 hover:scale-110 transition-all" 
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${isDark ? 'bg-slate-700 text-indigo-400 hover:bg-slate-600' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}
                           title="View Profile"
                         >
                           <Eye size={16} />
                         </button>
                         <button 
                           onClick={() => handleStatusChange(app.id, ApplicationStatus.SHORTLISTED)}
-                          className="p-2 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 text-green-600 hover:from-green-100 hover:to-emerald-100 hover:scale-110 transition-all" 
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${isDark ? 'bg-slate-700 text-green-400 hover:bg-slate-600' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
                           title="Shortlist"
                         >
                           <Check size={16} />
                         </button>
                         <button 
                           onClick={() => handleStatusChange(app.id, ApplicationStatus.OFFERED)}
-                          className="p-2 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 text-purple-600 hover:from-purple-100 hover:to-violet-100 hover:scale-110 transition-all" 
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${isDark ? 'bg-slate-700 text-purple-400 hover:bg-slate-600' : 'bg-purple-50 text-purple-600 hover:bg-purple-100'}`}
                           title="Send Offer"
                         >
                           <Award size={16} />
                         </button>
                         <button 
                           onClick={() => handleStatusChange(app.id, ApplicationStatus.REJECTED)}
-                          className="p-2 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 text-red-600 hover:from-red-100 hover:to-rose-100 hover:scale-110 transition-all" 
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${isDark ? 'bg-slate-700 text-red-400 hover:bg-slate-600' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}
                           title="Reject"
                         >
                           <X size={16} />
@@ -203,18 +206,18 @@ export const Applicants: React.FC = () => {
           </table>
         )}
         {!loading && filteredApps.length === 0 && (
-          <div className="p-8 text-center text-slate-500">No applicants found.</div>
+          <div className={`p-8 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No applicants found.</div>
         )}
       </div>
 
       {/* Student Detail Modal */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedStudent(null)}>
-          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className={`rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto ${isDark ? 'bg-slate-800' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 p-6 rounded-t-3xl">
+            <div className="bg-indigo-600 p-6 rounded-t-xl">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                   {(selectedStudent.name || 'S').charAt(0).toUpperCase()}
                 </div>
                 <div className="text-white">
@@ -228,55 +231,55 @@ export const Applicants: React.FC = () => {
             <div className="p-6 space-y-5">
               {/* Contact Info */}
               <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-xl">
-                  <Mail size={16} className="text-emerald-500" />
+                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-50 text-slate-600'}`}>
+                  <Mail size={16} className="text-indigo-500" />
                   <span>{selectedStudent.email}</span>
                 </div>
                 {selectedStudent.phone && (
-                  <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-xl">
-                    <Phone size={16} className="text-emerald-500" />
+                  <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-50 text-slate-600'}`}>
+                    <Phone size={16} className="text-indigo-500" />
                     <span>{selectedStudent.phone}</span>
                   </div>
                 )}
               </div>
 
               {/* College */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-2xl">
+              <div className={`p-4 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <GraduationCap size={18} className="text-emerald-600" />
-                  <span className="font-bold text-slate-800">Education</span>
+                  <GraduationCap size={18} className="text-indigo-500" />
+                  <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Education</span>
                 </div>
-                <p className="text-slate-700 font-semibold">{selectedStudent.collegeName || 'College not specified'}</p>
-                <p className="text-slate-500 text-sm">{selectedStudent.course || selectedStudent.branch || 'N/A'}</p>
+                <p className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{selectedStudent.collegeName || 'College not specified'}</p>
+                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{selectedStudent.course || selectedStudent.branch || 'N/A'}</p>
               </div>
 
               {/* Details Grid */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-2xl">
-                  <p className="text-xs font-medium text-slate-500">Branch</p>
-                  <p className="font-bold text-slate-800">{selectedStudent.branch || 'N/A'}</p>
+                <div className={`p-4 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
+                  <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Branch</p>
+                  <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{selectedStudent.branch || 'N/A'}</p>
                 </div>
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-2xl">
-                  <p className="text-xs font-medium text-slate-500">CGPA</p>
-                  <p className="font-bold text-2xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{selectedStudent.cgpa || 'N/A'}</p>
+                <div className={`p-4 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-indigo-50'}`}>
+                  <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>CGPA</p>
+                  <p className="font-bold text-2xl text-indigo-500">{selectedStudent.cgpa || 'N/A'}</p>
                 </div>
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-2xl">
-                  <p className="text-xs font-medium text-slate-500">Graduation Year</p>
-                  <p className="font-bold text-slate-800">{selectedStudent.graduationYear || 'N/A'}</p>
+                <div className={`p-4 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
+                  <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Graduation Year</p>
+                  <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{selectedStudent.graduationYear || 'N/A'}</p>
                 </div>
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-2xl">
-                  <p className="text-xs font-medium text-slate-500">Status</p>
-                  <p className="font-bold text-slate-800">{selectedStudent.educationStatus || 'Pursuing'}</p>
+                <div className={`p-4 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
+                  <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Status</p>
+                  <p className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{selectedStudent.educationStatus || 'Pursuing'}</p>
                 </div>
               </div>
 
               {/* Skills */}
               {selectedStudent.skills && selectedStudent.skills.length > 0 && (
                 <div>
-                  <p className="text-sm font-bold text-slate-700 mb-2">Skills</p>
+                  <p className={`text-sm font-bold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Skills</p>
                   <div className="flex flex-wrap gap-2">
                     {selectedStudent.skills.map((skill, i) => (
-                      <span key={i} className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-bold">
+                      <span key={i} className={`px-3 py-1.5 rounded-full text-sm font-bold ${isDark ? 'bg-indigo-900/50 text-indigo-300' : 'bg-indigo-100 text-indigo-700'}`}>
                         {skill}
                       </span>
                     ))}
@@ -291,7 +294,7 @@ export const Applicants: React.FC = () => {
                     href={selectedStudent.resumeUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:from-green-600 hover:to-emerald-600 text-sm font-bold shadow-lg hover:shadow-xl transition-all"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg transition-all"
                   >
                     <FileText size={16} /> View Resume
                   </a>
@@ -301,7 +304,7 @@ export const Applicants: React.FC = () => {
                     href={selectedStudent.linkedIn} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:from-blue-600 hover:to-indigo-600 text-sm font-bold shadow-lg hover:shadow-xl transition-all"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg transition-all"
                   >
                     <Linkedin size={16} /> LinkedIn
                   </a>
@@ -309,10 +312,10 @@ export const Applicants: React.FC = () => {
               </div>
 
               {/* Close Button */}
-              <div className="pt-4 border-t flex justify-end">
+              <div className={`pt-4 border-t flex justify-end ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
                 <button 
                   onClick={() => setSelectedStudent(null)}
-                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 font-bold transition-all"
+                  className={`px-6 py-2.5 rounded-xl font-bold transition-all ${isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
                 >
                   Close
                 </button>

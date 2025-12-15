@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { JobType, Job } from '../../types';
 import { Briefcase, MapPin, Calendar, GraduationCap, GitBranch, ClipboardList, IndianRupee, Pencil } from 'lucide-react';
 
 export const EditJob: React.FC = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
@@ -75,8 +77,8 @@ export const EditJob: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Loading job details...</p>
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Loading job details...</p>
         </div>
       </div>
     );
@@ -85,7 +87,7 @@ export const EditJob: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-indigo-600 rounded-xl p-6 text-white shadow-lg">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
             <Pencil size={24} />
@@ -95,24 +97,24 @@ export const EditJob: React.FC = () => {
         <p className="text-white/80">Update the job details below</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+      <div className={`rounded-xl shadow-lg border p-8 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Job Details Section */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg">
-                <Briefcase size={18} className="text-emerald-600" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <Briefcase size={18} className="text-indigo-600" />
               </div>
-              <h2 className="font-bold text-slate-800">Job Details</h2>
+              <h2 className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Job Details</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Job Title</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Title</label>
                 <input 
                   required 
                   type="text" 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   placeholder="e.g., Software Engineer"
                   value={formData.title} 
                   onChange={e => setFormData({...formData, title: e.target.value})} 
@@ -120,11 +122,11 @@ export const EditJob: React.FC = () => {
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Description</label>
                 <textarea 
                   required 
                   rows={4} 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   placeholder="Describe the role, responsibilities, and requirements..."
                   value={formData.description} 
                   onChange={e => setFormData({...formData, description: e.target.value})} 
@@ -132,14 +134,14 @@ export const EditJob: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <IndianRupee size={14} className="text-emerald-600" /> Package (LPA)
+                <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <IndianRupee size={14} className="text-indigo-500" /> Package (LPA)
                 </label>
                 <input 
                   required 
                   type="number" 
                   step="0.1" 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   placeholder="e.g., 12"
                   value={formData.package} 
                   onChange={e => setFormData({...formData, package: e.target.value})} 
@@ -147,13 +149,13 @@ export const EditJob: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <MapPin size={14} className="text-emerald-600" /> Location
+                <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <MapPin size={14} className="text-indigo-500" /> Location
                 </label>
                 <input 
                   required 
                   type="text" 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   placeholder="e.g., Bangalore, Remote"
                   value={formData.location} 
                   onChange={e => setFormData({...formData, location: e.target.value})} 
@@ -161,9 +163,9 @@ export const EditJob: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Job Type</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Type</label>
                 <select 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all bg-white font-medium" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all font-medium ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   value={formData.type} 
                   onChange={e => setFormData({...formData, type: e.target.value as JobType})}
                 >
@@ -173,13 +175,13 @@ export const EditJob: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <Calendar size={14} className="text-emerald-600" /> Deadline
+                <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <Calendar size={14} className="text-indigo-500" /> Deadline
                 </label>
                 <input 
                   required 
                   type="date" 
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" 
+                  className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   value={formData.deadline} 
                   onChange={e => setFormData({...formData, deadline: e.target.value})} 
                 />
@@ -188,48 +190,48 @@ export const EditJob: React.FC = () => {
           </div>
 
           {/* Eligibility Section */}
-          <div className="border-t pt-6">
+          <div className={`border-t pt-6 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <div className="flex items-center gap-2 mb-4">
-              <div className="p-2 bg-gradient-to-br from-violet-100 to-purple-100 rounded-lg">
-                <GraduationCap size={18} className="text-violet-600" />
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <GraduationCap size={18} className="text-indigo-600" />
               </div>
-              <h2 className="font-bold text-slate-800">Eligibility & Process</h2>
+              <h2 className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Eligibility & Process</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Minimum CGPA</label>
+                  <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Minimum CGPA</label>
                   <input 
                     required 
                     type="number" 
                     step="0.1" 
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all" 
+                    className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                     placeholder="e.g., 7.0"
                     value={formData.minCGPA} 
                     onChange={e => setFormData({...formData, minCGPA: Number(e.target.value)})} 
                   />
                </div>
                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <GitBranch size={14} className="text-violet-600" /> Eligible Branches
+                  <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <GitBranch size={14} className="text-indigo-500" /> Eligible Branches
                   </label>
                   <input 
                     required 
                     type="text" 
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all" 
+                    className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                     placeholder="e.g., CSE, ECE, IT"
                     value={formData.branches} 
                     onChange={e => setFormData({...formData, branches: e.target.value})} 
                   />
                </div>
                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <ClipboardList size={14} className="text-violet-600" /> Hiring Rounds
+                  <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    <ClipboardList size={14} className="text-indigo-500" /> Hiring Rounds
                   </label>
                   <input 
                     required 
                     type="text" 
-                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-all" 
+                    className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                     placeholder="e.g., Online Test, Technical Interview, HR"
                     value={formData.rounds} 
                     onChange={e => setFormData({...formData, rounds: e.target.value})} 
@@ -238,17 +240,17 @@ export const EditJob: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 justify-end pt-6 border-t">
+          <div className={`flex gap-4 justify-end pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <button 
               type="button" 
               onClick={() => navigate('/company/dashboard')} 
-              className="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-semibold text-slate-600 transition-all"
+              className={`px-6 py-3 border rounded-xl font-semibold transition-all ${isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-3 rounded-xl hover:from-emerald-600 hover:to-teal-600 font-bold shadow-lg hover:shadow-xl transition-all"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all"
             >
               Update Job
             </button>

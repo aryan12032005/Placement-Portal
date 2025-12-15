@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Api } from '../../services/api';
 import { uploadResume, deleteResume } from '../../services/supabase';
-import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2, Loader2 } from 'lucide-react';
+import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2, Loader2, X } from 'lucide-react';
 
 export const StudentProfile: React.FC = () => {
   const { user, login } = useAuth();
+  const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -17,7 +19,7 @@ export const StudentProfile: React.FC = () => {
     course: user?.course || '',
     collegeName: user?.collegeName || '',
     graduationYear: user?.graduationYear || new Date().getFullYear(),
-    educationStatus: user?.educationStatus || 'Pursuing',
+    educationStatus: (user?.educationStatus || 'Pursuing') as 'Pursuing' | 'Graduated' | 'Undergraduate',
     cgpa: user?.cgpa || 0,
     skills: user?.skills?.join(', ') || '',
     resumeUrl: user?.resumeUrl || ''
@@ -52,17 +54,8 @@ export const StudentProfile: React.FC = () => {
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && user) {
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        alert('Please upload a PDF file');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size should be less than 5MB');
-        return;
-      }
+      if (file.type !== 'application/pdf') { alert('Please upload a PDF file'); return; }
+      if (file.size > 5 * 1024 * 1024) { alert('File size should be less than 5MB'); return; }
 
       setUploading(true);
       try {
@@ -71,10 +64,9 @@ export const StudentProfile: React.FC = () => {
           setFormData({ ...formData, resumeUrl });
           alert('Resume uploaded successfully!');
         } else {
-          alert('Failed to upload resume. Please check your Supabase configuration.');
+          alert('Failed to upload resume.');
         }
       } catch (error) {
-        console.error('Upload error:', error);
         alert('Failed to upload resume');
       } finally {
         setUploading(false);
@@ -89,108 +81,93 @@ export const StudentProfile: React.FC = () => {
     }
   };
 
+  const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border`;
+  const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`;
+  const inputClass = `w-full px-4 py-2.5 rounded-lg border outline-none transition-all ${
+    isDark 
+      ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' 
+      : 'bg-white border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+  }`;
+  const displayClass = `py-2.5 px-4 rounded-lg ${isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'}`;
+
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-3xl p-8 text-white mb-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-        <div className="flex justify-between items-start relative z-10">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 bg-white/20 backdrop-blur text-white rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg border border-white/30">
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header */}
+      <div className={`${cardClass} p-6`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
               {formData.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{formData.name || 'Your Name'}</h1>
-              <p className="text-white/80 flex items-center gap-2 mt-1">
-                <Mail size={16} /> {user?.email}
+              <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                {formData.name || 'Your Name'}
+              </h1>
+              <p className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <Mail size={14} /> {user?.email}
               </p>
             </div>
           </div>
           {!isEditing && (
             <button 
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur hover:bg-white/30 rounded-xl transition-all text-white font-medium border border-white/30"
+              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
             >
-              <Edit2 size={18} /> Edit Profile
+              <Edit2 size={16} /> Edit Profile
             </button>
           )}
         </div>
       </div>
-      
-      <form onSubmit={handleUpdate}>
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 text-center">
-            <p className="text-3xl font-bold text-purple-600">{formData.cgpa || 0}</p>
-            <p className="text-slate-500 text-sm font-medium">CGPA</p>
-          </div>
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 text-center">
-            <p className="text-3xl font-bold text-blue-600">{formData.graduationYear}</p>
-            <p className="text-slate-500 text-sm font-medium">Grad Year</p>
-          </div>
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 text-center">
-            <p className="text-3xl font-bold text-emerald-600">{formData.skills.split(',').filter(s => s.trim()).length}</p>
-            <p className="text-slate-500 text-sm font-medium">Skills</p>
-          </div>
-          <div className="bg-white p-4 rounded-2xl shadow-lg border border-slate-100 text-center">
-            <p className="text-xl font-bold text-amber-600">{formData.resumeUrl ? '✓' : '✗'}</p>
-            <p className="text-slate-500 text-sm font-medium">Resume</p>
-          </div>
-        </div>
 
-        {/* Personal Details */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 mb-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center text-white">
-              <UserIcon size={18} />
-            </div>
-            Personal Information
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'CGPA', value: formData.cgpa || 0 },
+          { label: 'Grad Year', value: formData.graduationYear },
+          { label: 'Skills', value: formData.skills.split(',').filter(s => s.trim()).length },
+          { label: 'Resume', value: formData.resumeUrl ? '✓' : '✗' },
+        ].map((stat) => (
+          <div key={stat.label} className={`${cardClass} p-4 text-center`}>
+            <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{stat.value}</p>
+            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
+          </div>
+        ))}
+      </div>
+      
+      <form onSubmit={handleUpdate} className="space-y-6">
+        {/* Personal Information */}
+        <div className={`${cardClass} p-6`}>
+          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <UserIcon size={20} className="text-indigo-600" /> Personal Information
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Full Name</label>
+              <label className={labelClass}>Full Name</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  placeholder="Full Name"
-                />
+                <input type="text" className={inputClass} value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Full Name" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">{formData.name || 'Not provided'}</p>
+                <p className={displayClass}>{formData.name || 'Not provided'}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Phone Number</label>
+              <label className={labelClass}>Phone Number</label>
               {isEditing ? (
-                <input
-                  type="tel"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  placeholder="+91 XXXXX XXXXX"
-                />
+                <input type="tel" className={inputClass} value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="+91 XXXXX XXXXX" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl flex items-center gap-2">
-                  <Phone size={16} className="text-slate-400" /> {formData.phone || 'Not provided'}
-                </p>
+                <p className={displayClass}>{formData.phone || 'Not provided'}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">LinkedIn Profile</label>
+              <label className={labelClass}>LinkedIn Profile</label>
               {isEditing ? (
-                <input
-                  type="url"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
-                  value={formData.linkedIn}
-                  onChange={(e) => setFormData({...formData, linkedIn: e.target.value})}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                />
+                <input type="url" className={inputClass} value={formData.linkedIn}
+                  onChange={(e) => setFormData({...formData, linkedIn: e.target.value})} placeholder="https://linkedin.com/in/..." />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">
+                <p className={displayClass}>
                   {formData.linkedIn ? (
-                    <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-2">
+                    <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline flex items-center gap-2">
                       <Linkedin size={16} /> View Profile
                     </a>
                   ) : 'Not provided'}
@@ -198,221 +175,149 @@ export const StudentProfile: React.FC = () => {
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Roll Number / ID</label>
+              <label className={labelClass}>Roll Number</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
-                  value={formData.rollNumber}
-                  onChange={(e) => setFormData({...formData, rollNumber: e.target.value})}
-                  placeholder="2K23CSUN01000"
-                />
+                <input type="text" className={inputClass} value={formData.rollNumber}
+                  onChange={(e) => setFormData({...formData, rollNumber: e.target.value})} placeholder="2K23CSUN01000" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">{formData.rollNumber || 'Not provided'}</p>
+                <p className={displayClass}>{formData.rollNumber || 'Not provided'}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Education Details */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 mb-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white">
-              <GraduationCap size={18} />
-            </div>
-            Education Details
+        <div className={`${cardClass} p-6`}>
+          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <GraduationCap size={20} className="text-indigo-600" /> Education Details
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">College / University</label>
+              <label className={labelClass}>College / University</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.collegeName}
-                  onChange={(e) => setFormData({...formData, collegeName: e.target.value})}
-                  placeholder="Enter your college name"
-                />
+                <input type="text" className={inputClass} value={formData.collegeName}
+                  onChange={(e) => setFormData({...formData, collegeName: e.target.value})} placeholder="Enter college name" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">{formData.collegeName || 'Not provided'}</p>
+                <p className={displayClass}>{formData.collegeName || 'Not provided'}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Course / Degree</label>
+              <label className={labelClass}>Course / Degree</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.course}
-                  onChange={(e) => setFormData({...formData, course: e.target.value})}
-                  placeholder="B.Tech Computer Science"
-                />
+                <input type="text" className={inputClass} value={formData.course}
+                  onChange={(e) => setFormData({...formData, course: e.target.value})} placeholder="B.Tech Computer Science" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">{formData.course || 'Not provided'}</p>
+                <p className={displayClass}>{formData.course || 'Not provided'}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Branch / Specialization</label>
+              <label className={labelClass}>Branch / Specialization</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.branch}
-                  onChange={(e) => setFormData({...formData, branch: e.target.value})}
-                  placeholder="Computer Science & Engineering"
-                />
+                <input type="text" className={inputClass} value={formData.branch}
+                  onChange={(e) => setFormData({...formData, branch: e.target.value})} placeholder="Computer Science" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">{formData.branch || 'Not provided'}</p>
+                <p className={displayClass}>{formData.branch || 'Not provided'}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Education Status</label>
+              <label className={labelClass}>Education Status</label>
               {isEditing ? (
-                <select
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.educationStatus}
-                  onChange={(e) => setFormData({...formData, educationStatus: e.target.value})}
-                >
+                <select className={inputClass} value={formData.educationStatus}
+                  onChange={(e) => setFormData({...formData, educationStatus: e.target.value as 'Pursuing' | 'Graduated' | 'Undergraduate'})}>
                   <option value="Pursuing">Currently Pursuing</option>
                   <option value="Graduated">Graduated</option>
                   <option value="Undergraduate">Undergraduate</option>
                 </select>
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    formData.educationStatus === 'Graduated' ? 'bg-green-100 text-green-700' : 
-                    formData.educationStatus === 'Pursuing' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-700'
-                  }`}>
-                    {formData.educationStatus}
-                  </span>
+                <p className={displayClass}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    formData.educationStatus === 'Graduated' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                  }`}>{formData.educationStatus}</span>
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">Graduation Year</label>
+              <label className={labelClass}>Graduation Year</label>
               {isEditing ? (
-                <input
-                  type="number"
-                  min="2000"
-                  max="2030"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.graduationYear}
-                  onChange={(e) => setFormData({...formData, graduationYear: Number(e.target.value)})}
-                />
+                <input type="number" min="2000" max="2030" className={inputClass} value={formData.graduationYear}
+                  onChange={(e) => setFormData({...formData, graduationYear: Number(e.target.value)})} />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl font-semibold">{formData.graduationYear}</p>
+                <p className={displayClass}>{formData.graduationYear}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-2">CGPA / Percentage</label>
+              <label className={labelClass}>CGPA</label>
               {isEditing ? (
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all"
-                  value={formData.cgpa}
+                <input type="text" className={inputClass} value={formData.cgpa}
                   onChange={(e) => {
                     const value = e.target.value;
                     if (value === '' || /^\d*\.?\d*$/.test(value)) {
                       setFormData({...formData, cgpa: value === '' ? 0 : parseFloat(value) || 0});
                     }
-                  }}
-                  placeholder="Enter CGPA (e.g., 8.5)"
-                />
+                  }} placeholder="8.5" />
               ) : (
-                <p className="text-slate-800 py-3 bg-slate-50 px-4 rounded-xl">
-                  <span className="text-2xl font-bold text-purple-600">{formData.cgpa}</span>
-                  <span className="text-slate-400 text-sm ml-2">/ 10</span>
-                </p>
+                <p className={displayClass}><span className="text-xl font-bold text-indigo-600">{formData.cgpa}</span> / 10</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Skills & Resume */}
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 mb-6">
-          <h3 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center text-white">
-              <FileText size={18} />
-            </div>
-            Skills & Resume
+        <div className={`${cardClass} p-6`}>
+          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <FileText size={20} className="text-indigo-600" /> Skills & Resume
           </h3>
           
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-slate-600 mb-2">Technical Skills (comma separated)</label>
+            <label className={labelClass}>Technical Skills (comma separated)</label>
             {isEditing ? (
-              <textarea
-                rows={3}
-                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all"
-                value={formData.skills}
-                onChange={(e) => setFormData({...formData, skills: e.target.value})}
-                placeholder="React, Node.js, Python, Java, SQL..."
-              />
+              <textarea rows={3} className={inputClass} value={formData.skills}
+                onChange={(e) => setFormData({...formData, skills: e.target.value})} placeholder="React, Node.js, Python..." />
             ) : (
-              <div className="flex flex-wrap gap-2 py-3">
+              <div className="flex flex-wrap gap-2 py-2">
                 {formData.skills.split(',').filter(s => s.trim()).map((skill, i) => (
-                  <span key={i} className="bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-xl text-sm font-medium border border-purple-200">
-                    {skill.trim()}
-                  </span>
+                  <span key={i} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+                    isDark ? 'bg-slate-700 text-slate-300' : 'bg-indigo-50 text-indigo-700'
+                  }`}>{skill.trim()}</span>
                 ))}
-                {!formData.skills && <span className="text-slate-400">No skills added</span>}
+                {!formData.skills && <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>No skills added</span>}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-600 mb-2">Resume</label>
-            <div className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
-              formData.resumeUrl ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300 hover:border-purple-400 hover:bg-purple-50'
+            <label className={labelClass}>Resume</label>
+            <div className={`border-2 border-dashed rounded-xl p-8 text-center ${
+              formData.resumeUrl 
+                ? isDark ? 'border-emerald-700 bg-emerald-900/20' : 'border-emerald-300 bg-emerald-50' 
+                : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-slate-300 hover:border-indigo-400'
             }`}>
               {uploading ? (
-                <div className="flex items-center justify-center gap-3 text-purple-600">
-                  <Loader2 size={28} className="animate-spin" />
-                  <span className="font-semibold text-lg">Uploading to Supabase...</span>
+                <div className="flex items-center justify-center gap-3 text-indigo-600">
+                  <Loader2 size={24} className="animate-spin" />
+                  <span className="font-medium">Uploading...</span>
                 </div>
               ) : formData.resumeUrl ? (
-                <div className="flex flex-col items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                    <FileText size={32} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-emerald-700 mb-2">Resume Uploaded ✓</p>
-                    <a 
-                      href={formData.resumeUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-2 bg-emerald-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-emerald-700 transition-all"
-                    >
-                      <FileText size={18} /> View Resume
-                    </a>
-                  </div>
+                <div className="flex flex-col items-center gap-3">
+                  <FileText className="text-emerald-600" size={32} />
+                  <p className={`font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Resume Uploaded</p>
+                  <a href={formData.resumeUrl} target="_blank" rel="noopener noreferrer" 
+                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
+                    View Resume
+                  </a>
                   {isEditing && (
-                    <button 
-                      type="button" 
-                      onClick={handleRemoveResume}
-                      className="text-sm text-red-500 hover:text-red-700 font-medium"
-                    >
-                      Remove Resume
+                    <button type="button" onClick={handleRemoveResume} className="text-sm text-red-500 hover:text-red-600">
+                      Remove
                     </button>
                   )}
                 </div>
               ) : (
                 <>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleResumeUpload}
-                    className="hidden"
-                    id="resume-upload"
-                    disabled={!isEditing || uploading}
-                  />
-                  <label htmlFor="resume-upload" className={`flex flex-col items-center gap-3 ${isEditing && !uploading ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-                    <div className="w-16 h-16 bg-slate-200 rounded-2xl flex items-center justify-center text-slate-400">
-                      <Upload size={32} />
-                    </div>
-                    <div>
-                      <p className="text-slate-600 font-medium">Click to upload resume</p>
-                      <p className="text-slate-400 text-sm">PDF format, max 5MB</p>
-                    </div>
+                  <input type="file" accept=".pdf" onChange={handleResumeUpload} className="hidden" id="resume-upload" disabled={!isEditing} />
+                  <label htmlFor="resume-upload" className={`flex flex-col items-center gap-2 ${isEditing ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
+                    <Upload className={isDark ? 'text-slate-500' : 'text-slate-400'} size={32} />
+                    <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>Click to upload resume</p>
+                    <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>PDF format, max 5MB</p>
                   </label>
                 </>
               )}
@@ -420,22 +325,17 @@ export const StudentProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         {isEditing && (
-          <div className="flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              className="px-6 py-3 border-2 border-slate-300 rounded-xl font-semibold hover:bg-slate-50 transition-all"
-            >
+          <div className="flex gap-3 justify-end">
+            <button type="button" onClick={() => setIsEditing(false)}
+              className={`px-5 py-2.5 rounded-lg font-medium border transition-colors ${
+                isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-700' : 'border-slate-300 text-slate-600 hover:bg-slate-50'
+              }`}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"
-            >
-              <Save size={20} />
-              Save Changes
+            <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
+              <Save size={18} /> Save Changes
             </button>
           </div>
         )}

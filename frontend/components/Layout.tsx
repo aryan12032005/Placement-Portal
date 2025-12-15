@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { UserRole } from '../types';
 import { 
   LayoutDashboard, 
@@ -8,16 +9,21 @@ import {
   UserCircle, 
   LogOut, 
   Users, 
-  Building2, 
   BarChart3,
-  Bell,
-  Sparkles
+  Home,
+  GraduationCap,
+  Sun,
+  Moon,
+  Menu,
+  X
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const handleLogout = () => {
     logout();
@@ -51,89 +57,200 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     }
   };
 
-  const getRoleGradient = () => {
+  const getRoleLabel = () => {
     switch (user.role) {
-      case UserRole.STUDENT: return 'from-violet-600 via-purple-600 to-indigo-600';
-      case UserRole.COMPANY: return 'from-emerald-600 via-teal-600 to-cyan-600';
-      case UserRole.ADMIN: return 'from-rose-600 via-pink-600 to-fuchsia-600';
-      default: return 'from-blue-600 to-indigo-600';
-    }
-  };
-
-  const getRoleAccent = () => {
-    switch (user.role) {
-      case UserRole.STUDENT: return 'bg-violet-500';
-      case UserRole.COMPANY: return 'bg-emerald-500';
-      case UserRole.ADMIN: return 'bg-rose-500';
-      default: return 'bg-blue-500';
+      case UserRole.STUDENT: return 'Student';
+      case UserRole.COMPANY: return 'Company';
+      case UserRole.ADMIN: return 'Admin';
+      default: return 'User';
     }
   };
 
   return (
-    <div className="flex h-screen bg-slate-100">
-      {/* Sidebar with gradient */}
-      <aside className={`w-72 bg-gradient-to-b ${getRoleGradient()} text-white hidden md:flex flex-col shadow-2xl`}>
-        <div className="p-6 border-b border-white/10">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
-            <div className="bg-white/20 backdrop-blur p-2 rounded-xl">
-              <Sparkles className="text-yellow-300" size={24} />
+    <div className={`flex h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      {/* Sidebar - Clean Professional Design */}
+      <aside className={`w-64 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-r hidden md:flex flex-col`}>
+        {/* Logo */}
+        <div className={`p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <GraduationCap className="text-white" size={22} />
             </div>
-            UniPlace
-          </h1>
-          <p className="text-xs text-white/60 mt-2 uppercase tracking-widest font-medium">{user.role} Portal</p>
+            <div>
+              <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>UniPlace</span>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getRoleLabel()} Portal</p>
+            </div>
+          </Link>
         </div>
         
-        <nav className="flex-1 p-4 space-y-2">
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1">
+          <Link
+            to="/"
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+              isDark 
+                ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <Home size={18} />
+            <span className="font-medium text-sm">Home</span>
+          </Link>
+          
+          <div className={`my-3 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}></div>
+          
           {getNavItems().map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
                   isActive 
-                    ? 'bg-white text-slate-800 shadow-lg shadow-black/20 font-semibold' 
-                    : 'text-white/80 hover:bg-white/20 hover:text-white hover:translate-x-1'
+                    ? 'bg-indigo-600 text-white font-medium' 
+                    : isDark 
+                      ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' 
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
-                <item.icon size={20} />
-                <span className="font-medium">{item.label}</span>
-                {isActive && <div className="ml-auto w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>}
+                <item.icon size={18} />
+                <span className="font-medium text-sm">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-4 py-3 mb-3 bg-white/10 rounded-xl backdrop-blur">
-            <div className={`w-10 h-10 rounded-xl ${getRoleAccent()} flex items-center justify-center text-sm font-bold shadow-lg`}>
+        {/* User Section */}
+        <div className={`p-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all mb-2 ${
+              isDark 
+                ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            <span className="font-medium text-sm">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+
+          {/* User Info */}
+          <div className={`flex items-center gap-3 px-4 py-3 mb-2 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+            <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-semibold truncate">{user.name}</p>
-              <p className="text-xs text-white/60 truncate">{user.email}</p>
+              <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user.name}</p>
+              <p className={`text-xs truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</p>
             </div>
           </div>
+
+          {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-white/80 hover:bg-red-500/30 rounded-xl transition-all duration-300 hover:text-white group"
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+              isDark 
+                ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' 
+                : 'text-slate-600 hover:text-red-600 hover:bg-red-50'
+            }`}
           >
-            <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
-            <span>Logout</span>
+            <LogOut size={18} />
+            <span className="font-medium text-sm">Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className={`bg-gradient-to-r ${getRoleGradient()} shadow-lg z-10 p-4 md:hidden flex justify-between items-center`}>
-             <h1 className="font-bold text-white flex items-center gap-2">
-               <Sparkles size={20} className="text-yellow-300" /> UniPlace
-             </h1>
-             <button onClick={handleLogout} className="text-white/80 hover:text-white"><LogOut size={20}/></button>
+        {/* Top Header - Mobile & Desktop */}
+        <header className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b px-6 py-4 flex justify-between items-center`}>
+          {/* Mobile Menu Button */}
+          <button 
+            className="md:hidden p-2 -ml-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X size={20} className={isDark ? 'text-white' : 'text-slate-800'} />
+            ) : (
+              <Menu size={20} className={isDark ? 'text-white' : 'text-slate-800'} />
+            )}
+          </button>
+
+          {/* Logo for mobile */}
+          <Link to="/" className="md:hidden flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <GraduationCap className="text-white" size={18} />
+            </div>
+            <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>UniPlace</span>
+          </Link>
+
+          {/* Page Title - Desktop */}
+          <div className="hidden md:block">
+            <h1 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              {getNavItems().find(item => item.path === location.pathname)?.label || 'Dashboard'}
+            </h1>
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg transition-all ${
+                isDark 
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-700' 
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+              }`}
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="md:hidden p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
         </header>
 
-        <main className="flex-1 overflow-auto p-6 bg-gradient-to-br from-slate-100 via-slate-50 to-white">
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className={`md:hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b p-4`}>
+            <nav className="space-y-1">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg ${
+                  isDark ? 'text-slate-400 hover:bg-slate-700' : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <Home size={18} />
+                <span className="font-medium text-sm">Home</span>
+              </Link>
+              {getNavItems().map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg ${
+                      isActive 
+                        ? 'bg-indigo-600 text-white' 
+                        : isDark ? 'text-slate-400 hover:bg-slate-700' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <item.icon size={18} />
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <main className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
