@@ -20,8 +20,8 @@ initStorage();
 const getItems = <T>(key: string): T[] => JSON.parse(localStorage.getItem(key) || '[]');
 const setItems = <T>(key: string, items: T[]) => localStorage.setItem(key, JSON.stringify(items));
 
-const API_URL = 'http://localhost:5000/api';
-// const API_URL = 'https://placement-portal-1ca3.onrender.com/api';
+// const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://placement-portal-1ca3.onrender.com/api';
 export const Api = {
   // Auth & User
   login: async (email: string, password?: string): Promise<User | null> => {
