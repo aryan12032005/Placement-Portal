@@ -18,7 +18,8 @@ import {
   X,
   Plus,
   FileText,
-  Rocket
+  Rocket,
+  Trophy
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -41,12 +42,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         return [
           { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
           { icon: Rocket, label: 'Internships', path: '/student/internships' },
+          { icon: Trophy, label: 'Hackathons', path: '/student/hackathons' },
           { icon: UserCircle, label: 'Profile', path: '/student/profile' },
         ];
       case UserRole.ADMIN:
         return [
           { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
           { icon: Plus, label: 'Post Internship', path: '/admin/post-internship' },
+          { icon: Trophy, label: 'Post Hackathon', path: '/admin/post-hackathon' },
           { icon: FileText, label: 'Applicants', path: '/admin/applicants' },
           { icon: Users, label: 'Users', path: '/admin/users' },
           { icon: BarChart3, label: 'Stats', path: '/admin/stats' },

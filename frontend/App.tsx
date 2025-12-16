@@ -10,12 +10,14 @@ import { Register } from './pages/Register';
 import { StudentDashboard } from './pages/student/Dashboard';
 import { StudentJobs } from './pages/student/Jobs';
 import { StudentProfile } from './pages/student/Profile';
+import { Hackathons } from './pages/student/Hackathons';
 import { PostJob } from './pages/company/PostJob';
 import { Applicants } from './pages/company/Applicants';
 import { EditJob } from './pages/company/EditJob';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { UsersManagement } from './pages/admin/Users';
 import { Stats } from './pages/admin/Stats';
+import { PostHackathon } from './pages/admin/PostHackathon';
 import { UserRole } from './types';
 
 const App: React.FC = () => {
@@ -35,6 +37,7 @@ const App: React.FC = () => {
                 <Routes>
                   <Route path="dashboard" element={<StudentDashboard />} />
                   <Route path="internships" element={<StudentJobs />} />
+                  <Route path="hackathons" element={<Hackathons />} />
                   <Route path="jobs" element={<Navigate to="/student/internships" replace />} />
                   <Route path="profile" element={<StudentProfile />} />
                 </Routes>
@@ -49,6 +52,7 @@ const App: React.FC = () => {
                 <Routes>
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="post-internship" element={<PostJob />} />
+                  <Route path="post-hackathon" element={<PostHackathon />} />
                   <Route path="applicants" element={<Applicants />} />
                   <Route path="edit-internship/:id" element={<EditJob />} />
                   <Route path="users" element={<UsersManagement />} />
