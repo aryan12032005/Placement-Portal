@@ -15,7 +15,10 @@ import {
   Sun,
   Moon,
   Menu,
-  X
+  X,
+  Plus,
+  FileText,
+  Rocket
 } from 'lucide-react';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -37,18 +40,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       case UserRole.STUDENT:
         return [
           { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
-          { icon: Briefcase, label: 'Jobs', path: '/student/jobs' },
+          { icon: Rocket, label: 'Internships', path: '/student/internships' },
           { icon: UserCircle, label: 'Profile', path: '/student/profile' },
-        ];
-      case UserRole.COMPANY:
-        return [
-          { icon: LayoutDashboard, label: 'Dashboard', path: '/company/dashboard' },
-          { icon: Briefcase, label: 'Post Job', path: '/company/post-job' },
-          { icon: Users, label: 'Applicants', path: '/company/applicants' },
         ];
       case UserRole.ADMIN:
         return [
           { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+          { icon: Plus, label: 'Post Internship', path: '/admin/post-internship' },
+          { icon: FileText, label: 'Applicants', path: '/admin/applicants' },
           { icon: Users, label: 'Users', path: '/admin/users' },
           { icon: BarChart3, label: 'Stats', path: '/admin/stats' },
         ];
@@ -60,7 +59,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const getRoleLabel = () => {
     switch (user.role) {
       case UserRole.STUDENT: return 'Student';
-      case UserRole.COMPANY: return 'Company';
       case UserRole.ADMIN: return 'Admin';
       default: return 'User';
     }
@@ -77,7 +75,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <GraduationCap className="text-white" size={22} />
             </div>
             <div>
-              <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>UniPlace</span>
+              <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
               <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getRoleLabel()} Portal</p>
             </div>
           </Link>
@@ -182,7 +180,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
               <GraduationCap className="text-white" size={18} />
             </div>
-            <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>UniPlace</span>
+            <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
           </Link>
 
           {/* Page Title - Desktop */}

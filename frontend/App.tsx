@@ -10,7 +10,6 @@ import { Register } from './pages/Register';
 import { StudentDashboard } from './pages/student/Dashboard';
 import { StudentJobs } from './pages/student/Jobs';
 import { StudentProfile } from './pages/student/Profile';
-import { CompanyDashboard } from './pages/company/Dashboard';
 import { PostJob } from './pages/company/PostJob';
 import { Applicants } from './pages/company/Applicants';
 import { EditJob } from './pages/company/EditJob';
@@ -35,39 +34,32 @@ const App: React.FC = () => {
               <Layout>
                 <Routes>
                   <Route path="dashboard" element={<StudentDashboard />} />
-                  <Route path="jobs" element={<StudentJobs />} />
+                  <Route path="internships" element={<StudentJobs />} />
+                  <Route path="jobs" element={<Navigate to="/student/internships" replace />} />
                   <Route path="profile" element={<StudentProfile />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
           } />
 
-          {/* Company Routes */}
-          <Route path="/company/*" element={
-            <ProtectedRoute allowedRoles={[UserRole.COMPANY]}>
-              <Layout>
-                <Routes>
-                  <Route path="dashboard" element={<CompanyDashboard />} />
-                  <Route path="post-job" element={<PostJob />} />
-                  <Route path="applicants" element={<Applicants />} />
-                  <Route path="edit-job/:id" element={<EditJob />} />
-                </Routes>
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          {/* Admin Routes */}
+          {/* Admin Routes - Combined Admin & Company Portal */}
           <Route path="/admin/*" element={
             <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <Layout>
                 <Routes>
                   <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="post-internship" element={<PostJob />} />
+                  <Route path="applicants" element={<Applicants />} />
+                  <Route path="edit-internship/:id" element={<EditJob />} />
                   <Route path="users" element={<UsersManagement />} />
                   <Route path="stats" element={<Stats />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
           } />
+
+          {/* Redirect old company routes to admin */}
+          <Route path="/company/*" element={<Navigate to="/admin/dashboard" replace />} />
 
         </Routes>
         </HashRouter>

@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Api } from '../services/api';
-import { UserRole } from '../types';
-import { GraduationCap, Building2, Mail, Lock, Eye, EyeOff, User, Hash, BookOpen, Factory } from 'lucide-react';
+import { GraduationCap, Mail, Lock, Eye, EyeOff, User, Hash, BookOpen } from 'lucide-react';
 
 export const Register: React.FC = () => {
-  const [role, setRole] = useState<'STUDENT' | 'COMPANY'>('STUDENT');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    // Student specific
     rollNumber: '',
     branch: '',
-    // Company specific
-    companyName: '',
-    industry: '',
   });
   
   const navigate = useNavigate();
@@ -27,20 +21,14 @@ export const Register: React.FC = () => {
     setLoading(true);
     try {
       await Api.register({
-        role,
-        name: role === 'COMPANY' ? formData.companyName : formData.name,
+        role: 'STUDENT',
+        name: formData.name,
         email: formData.email,
         password: formData.password,
-        ...(role === 'STUDENT' && {
-          rollNumber: formData.rollNumber,
-          branch: formData.branch,
-          cgpa: 0,
-          skills: [],
-        }),
-        ...(role === 'COMPANY' && {
-          companyName: formData.companyName,
-          industry: formData.industry,
-        })
+        rollNumber: formData.rollNumber,
+        branch: formData.branch,
+        cgpa: 0,
+        skills: [],
       });
       alert('Registration successful! Please login.');
       navigate('/login');
@@ -57,121 +45,61 @@ export const Register: React.FC = () => {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-slate-100">
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-2xl mb-4 shadow-lg shadow-violet-500/25">
+            <GraduationCap className="text-white" size={32} />
+          </div>
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Create Account</h1>
-          <p className="text-slate-500">Join UniPlace today</p>
-        </div>
-
-        {/* Role Selector Tabs */}
-        <div className="flex mb-6 bg-slate-100 rounded-xl p-1">
-          <button
-            type="button"
-            onClick={() => setRole('STUDENT')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all ${
-              role === 'STUDENT'
-                ? 'bg-white text-purple-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <GraduationCap size={20} />
-            Student
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('COMPANY')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-all ${
-              role === 'COMPANY'
-                ? 'bg-white text-purple-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <Building2 size={20} />
-            Company
-          </button>
+          <p className="text-slate-500">Join InternHub to discover internships</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {role === 'STUDENT' ? (
-            <>
-              {/* Full Name */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    className={inputClass}
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  />
-                </div>
-              </div>
-              {/* Roll Number */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Roll Number</label>
-                <div className="relative">
-                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    className={inputClass}
-                    placeholder="2021CS1234"
-                    value={formData.rollNumber}
-                    onChange={(e) => setFormData({...formData, rollNumber: e.target.value})}
-                  />
-                </div>
-              </div>
-              {/* Branch */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Branch</label>
-                <div className="relative">
-                  <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    className={inputClass}
-                    placeholder="Computer Science"
-                    value={formData.branch}
-                    onChange={(e) => setFormData({...formData, branch: e.target.value})}
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              {/* Company Name */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Company Name</label>
-                <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    className={inputClass}
-                    placeholder="Acme Inc."
-                    value={formData.companyName}
-                    onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                  />
-                </div>
-              </div>
-              {/* Industry */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Industry</label>
-                <div className="relative">
-                  <Factory className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    type="text"
-                    required
-                    className={inputClass}
-                    placeholder="Technology"
-                    value={formData.industry}
-                    onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                  />
-                </div>
-              </div>
-            </>
-          )}
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                required
+                className={inputClass}
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+              />
+            </div>
+          </div>
+
+          {/* Roll Number */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Roll Number</label>
+            <div className="relative">
+              <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                required
+                className={inputClass}
+                placeholder="2021CS1234"
+                value={formData.rollNumber}
+                onChange={(e) => setFormData({...formData, rollNumber: e.target.value})}
+              />
+            </div>
+          </div>
+
+          {/* Branch */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Branch</label>
+            <div className="relative">
+              <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input
+                type="text"
+                required
+                className={inputClass}
+                placeholder="Computer Science"
+                value={formData.branch}
+                onChange={(e) => setFormData({...formData, branch: e.target.value})}
+              />
+            </div>
+          </div>
 
           {/* Email Field */}
           <div>

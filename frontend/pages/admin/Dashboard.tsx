@@ -101,8 +101,8 @@ export const AdminDashboard: React.FC = () => {
   const cards = [
     { label: 'Total Students', value: stats.students, icon: Users },
     { label: 'Companies', value: stats.companies, icon: Building2 },
-    { label: 'Jobs Posted', value: stats.jobs, icon: Briefcase },
-    { label: 'Placed', value: stats.placed, icon: CheckCircle },
+    { label: 'Internships', value: stats.jobs, icon: Briefcase },
+    { label: 'Offers Given', value: stats.placed, icon: CheckCircle },
   ];
 
   const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border`;
@@ -112,7 +112,7 @@ export const AdminDashboard: React.FC = () => {
       {/* Header */}
       <div className={cardClass + ' p-6'}>
         <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Admin Dashboard</h1>
-        <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>Manage placements, users, and track progress</p>
+        <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>Manage internships, users, and track progress</p>
       </div>
       
       {/* Stats Grid */}

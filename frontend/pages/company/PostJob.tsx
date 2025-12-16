@@ -42,8 +42,8 @@ export const PostJob: React.FC = () => {
       rounds: formData.rounds.split(',').map(r => r.trim())
     }, user.companyName || user.name);
 
-    alert('Job posted successfully!');
-    navigate('/company/dashboard');
+    alert('Internship posted successfully!');
+    navigate('/admin/dashboard');
   };
 
   return (
@@ -51,14 +51,14 @@ export const PostJob: React.FC = () => {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button 
-          onClick={() => navigate('/company/dashboard')}
+          onClick={() => navigate('/admin/dashboard')}
           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-100 hover:bg-slate-200'}`}
         >
           <ArrowLeft size={20} className={isDark ? 'text-slate-300' : 'text-slate-600'} />
         </button>
         <div>
-          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Post New Job</h1>
-          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Create a new job listing for students</p>
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Post New Internship</h1>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Create a new internship opportunity for students</p>
         </div>
       </div>
 
@@ -70,8 +70,8 @@ export const PostJob: React.FC = () => {
               <Briefcase size={24} />
             </div>
             <div>
-              <h2 className="text-lg font-bold">{user?.companyName || user?.name}</h2>
-              <p className="text-white/80 text-sm">Posting a new opportunity</p>
+              <h2 className="text-lg font-bold">InternHub Admin</h2>
+              <p className="text-white/80 text-sm">Posting a new internship opportunity</p>
             </div>
           </div>
         </div>
@@ -83,28 +83,28 @@ export const PostJob: React.FC = () => {
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
                 <Briefcase size={16} />
               </div>
-              Job Details
+              Internship Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Title</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Internship Title</label>
                 <input 
                   required 
                   type="text" 
                   className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
-                  placeholder="e.g., Software Engineer, Data Analyst"
+                  placeholder="e.g., Software Development Intern, Data Science Intern"
                   value={formData.title} 
                   onChange={e => setFormData({...formData, title: e.target.value})} 
                 />
               </div>
               
               <div className="md:col-span-2">
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Description</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Internship Description</label>
                 <textarea 
                   required 
                   rows={4} 
                   className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
-                  placeholder="Describe the role, responsibilities, and requirements..."
+                  placeholder="Describe the internship role, responsibilities, learning opportunities..."
                   value={formData.description} 
                   onChange={e => setFormData({...formData, description: e.target.value})} 
                 />
@@ -112,7 +112,7 @@ export const PostJob: React.FC = () => {
 
               <div>
                 <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  <IndianRupee size={16} className="text-indigo-500" /> Package (LPA)
+                  <IndianRupee size={16} className="text-indigo-500" /> Stipend (per month)
                 </label>
                 <input 
                   required 
@@ -140,14 +140,14 @@ export const PostJob: React.FC = () => {
               </div>
 
               <div>
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Type</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Internship Type</label>
                 <select 
                   className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                   value={formData.type} 
                   onChange={e => setFormData({...formData, type: e.target.value as JobType})}
                 >
-                  <option value={JobType.FULL_TIME}>Full Time</option>
                   <option value={JobType.INTERNSHIP}>Internship</option>
+                  <option value={JobType.FULL_TIME}>Full Time (PPO)</option>
                 </select>
               </div>
 
@@ -217,7 +217,7 @@ export const PostJob: React.FC = () => {
           <div className={`flex justify-end gap-4 pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <button 
               type="button"
-              onClick={() => navigate('/company/dashboard')}
+              onClick={() => navigate('/admin/dashboard')}
               className={`px-6 py-3 border rounded-xl font-semibold transition-all ${isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-700' : 'border-slate-300 hover:bg-slate-50'}`}
             >
               Cancel
@@ -226,7 +226,7 @@ export const PostJob: React.FC = () => {
               type="submit" 
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg transition-all"
             >
-              <Send size={18} /> Post Job
+              <Send size={18} /> Post Internship
             </button>
           </div>
         </form>

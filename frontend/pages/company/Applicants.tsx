@@ -19,12 +19,10 @@ export const Applicants: React.FC = () => {
     setLoading(true);
     try {
       const allJobs = await Api.getJobs();
-      const myJobs = allJobs.filter(j => j.companyId === user?.id);
-      setJobs(myJobs);
+      setJobs(allJobs);
 
       const allApps = await Api.getApplications();
-      const myApps = allApps.filter(a => myJobs.find(j => j.id === a.jobId));
-      setApplications(myApps);
+      setApplications(allApps);
 
       // Fetch students data
       const studentData = await Api.getStudents();
@@ -79,7 +77,7 @@ export const Applicants: React.FC = () => {
               </div>
               <h1 className="text-2xl font-bold">Applicants Management</h1>
             </div>
-            <p className="text-white/80">Review and manage job applicants</p>
+            <p className="text-white/80">Review and manage internship applicants</p>
           </div>
           <div className="flex gap-3">
             <button 
@@ -93,7 +91,7 @@ export const Applicants: React.FC = () => {
               value={filterJob}
               onChange={(e) => setFilterJob(e.target.value)}
             >
-              <option value="all" className="text-slate-800">All Jobs</option>
+              <option value="all" className="text-slate-800">All Internships</option>
               {jobs.map(j => <option key={j.id} value={j.id} className="text-slate-800">{j.title}</option>)}
             </select>
           </div>
@@ -112,7 +110,7 @@ export const Applicants: React.FC = () => {
               <tr>
                 <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Candidate</th>
                 <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Education</th>
-                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Role</th>
+                <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Internship</th>
                 <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>CGPA</th>
                 <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Resume</th>
                 <th className={`px-6 py-4 font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Status</th>

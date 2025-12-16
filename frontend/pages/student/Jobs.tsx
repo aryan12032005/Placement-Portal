@@ -3,12 +3,12 @@ import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Job, Application } from '../../types';
-import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket } from 'lucide-react';
 
 export const StudentJobs: React.FC = () => {
   const { user } = useAuth();
   const { isDark } = useTheme();
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [internships, setInternships] = useState<Job[]>([]);
   const [myApps, setMyApps] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,19 +17,19 @@ export const StudentJobs: React.FC = () => {
     const fetchData = async () => {
       const allJobs = await Api.getJobs();
       const apps = await Api.getApplications();
-      const activeJobs = allJobs.filter(job => job.status !== 'Stopped');
-      setJobs(activeJobs);
+      const activeInternships = allJobs.filter(job => job.status !== 'Stopped');
+      setInternships(activeInternships);
       setMyApps(apps.filter(a => a.studentId === user?.id).map(a => a.jobId));
     };
     fetchData();
   }, [user]);
 
-  const checkEligibility = (job: Job): { eligible: boolean; reason: string } => {
+  const checkEligibility = (internship: Job): { eligible: boolean; reason: string } => {
     if (!user) return { eligible: false, reason: 'Not logged in' };
     
-    const meetsCGPA = job.eligibility.minCGPA <= (user.cgpa || 0);
+    const meetsCGPA = internship.eligibility.minCGPA <= (user.cgpa || 0);
     if (!meetsCGPA) {
-      return { eligible: false, reason: `Requires ${job.eligibility.minCGPA}+ CGPA` };
+      return { eligible: false, reason: `Requires ${internship.eligibility.minCGPA}+ CGPA` };
     }
     
     const userBranch = (user.branch || '').toLowerCase();
@@ -41,8 +41,8 @@ export const StudentJobs: React.FC = () => {
       'civil': ['civil', 'ce', 'btech civil', 'b.tech civil'],
     };
     
-    const branchMatch = job.eligibility.branches.length === 0 || 
-      job.eligibility.branches.some(branch => {
+    const branchMatch = internship.eligibility.branches.length === 0 || 
+      internship.eligibility.branches.some(branch => {
         const branchLower = branch.toLowerCase();
         if (userBranch.includes(branchLower) || branchLower.includes(userBranch)) return true;
         for (const [key, aliases] of Object.entries(branchAliases)) {
@@ -57,39 +57,45 @@ export const StudentJobs: React.FC = () => {
     return { eligible: true, reason: '' };
   };
 
-  const handleApply = async (job: Job) => {
+  const handleApply = async (internship: Job) => {
     if (!user) return;
-    const { eligible, reason } = checkEligibility(job);
+    const { eligible, reason } = checkEligibility(internship);
     if (!eligible) { alert(`You are not eligible. ${reason}`); return; }
     if (!user.resumeUrl) { alert("Please upload a resume in your Profile before applying."); return; }
     
     setLoading(true);
-    await Api.applyForJob(job.id, user.id, user.name, job.title, job.companyName);
-    await Api.addNotification(job.companyId, `New applicant ${user.name} for ${job.title}`);
-    setMyApps([...myApps, job.id]);
+    await Api.applyForJob(internship.id, user.id, user.name, internship.title, internship.companyName);
+    await Api.addNotification(internship.companyId, `New applicant ${user.name} for ${internship.title}`);
+    setMyApps([...myApps, internship.id]);
     setLoading(false);
     alert('Applied successfully!');
   };
 
-  const filteredJobs = jobs.filter(job => 
-    job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.companyName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredInternships = internships.filter(internship => 
+    internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    internship.companyName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getDaysLeft = (deadline: string) => {
+    const diff = new Date(deadline).getTime() - new Date().getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Available Jobs</h1>
-          <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>{jobs.length} opportunities available</p>
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Available Internships</h1>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>{internships.length} opportunities available</p>
         </div>
         <div className="flex gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text"
-              placeholder="Search jobs..."
+              placeholder="Search internships..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 pr-4 py-2.5 rounded-lg border w-64 outline-none transition-all ${
@@ -109,15 +115,16 @@ export const StudentJobs: React.FC = () => {
         </div>
       </div>
 
-      {/* Jobs List */}
+      {/* Internships List */}
       <div className="space-y-4">
-        {filteredJobs.map((job) => {
-          const isApplied = myApps.includes(job.id);
-          const { eligible, reason } = checkEligibility(job);
+        {filteredInternships.map((internship) => {
+          const isApplied = myApps.includes(internship.id);
+          const { eligible, reason } = checkEligibility(internship);
+          const daysLeft = getDaysLeft(internship.deadline);
           
           return (
             <div 
-              key={job.id} 
+              key={internship.id} 
               className={`p-6 rounded-xl border transition-all ${
                 isDark 
                   ? `bg-slate-800 ${isApplied ? 'border-emerald-700' : 'border-slate-700 hover:border-slate-600'}` 
@@ -127,12 +134,12 @@ export const StudentJobs: React.FC = () => {
               <div className="flex flex-col lg:flex-row justify-between gap-5">
                 <div className="flex-1">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                      {job.companyName.charAt(0)}
+                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+                      {internship.companyName.charAt(0)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{job.title}</h3>
+                        <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>{internship.title}</h3>
                         {isApplied && (
                           <span className="flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
                             <CheckCircle size={12} /> Applied
@@ -143,9 +150,14 @@ export const StudentJobs: React.FC = () => {
                             {reason}
                           </span>
                         )}
+                        {daysLeft <= 3 && daysLeft > 0 && (
+                          <span className="flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium animate-pulse">
+                            <Timer size={12} /> {daysLeft} days left!
+                          </span>
+                        )}
                       </div>
                       <p className={`text-sm mt-1 flex items-center gap-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                        <Building2 size={14} /> {job.companyName}
+                        <Building2 size={14} /> {internship.companyName}
                       </p>
                     </div>
                   </div>
@@ -154,31 +166,31 @@ export const StudentJobs: React.FC = () => {
                     <span className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${
                       isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      <IndianRupee size={14} /> {job.package} LPA
+                      <IndianRupee size={14} /> {internship.package} LPA
                     </span>
                     <span className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${
                       isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      <MapPin size={14} /> {job.location}
+                      <MapPin size={14} /> {internship.location}
                     </span>
                     <span className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${
                       isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      <Clock size={14} /> {job.type}
+                      <Clock size={14} /> {internship.type}
                     </span>
                     <span className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm ${
                       isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      <Calendar size={14} /> {new Date(job.deadline).toLocaleDateString()}
+                      <Calendar size={14} /> Deadline: {new Date(internship.deadline).toLocaleDateString()}
                     </span>
                   </div>
 
                   <p className={`text-sm mt-3 line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                    {job.description}
+                    {internship.description}
                   </p>
                   
                   <p className={`mt-3 text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>
-                    <strong>Eligibility:</strong> {job.eligibility.minCGPA}+ CGPA • {job.eligibility.branches.join(', ') || 'All branches'}
+                    <strong>Eligibility:</strong> {internship.eligibility.minCGPA}+ CGPA • {internship.eligibility.branches.join(', ') || 'All branches'}
                   </p>
                 </div>
 
@@ -189,7 +201,7 @@ export const StudentJobs: React.FC = () => {
                     </button>
                   ) : (
                     <button 
-                      onClick={() => handleApply(job)}
+                      onClick={() => handleApply(internship)}
                       disabled={loading || !eligible}
                       className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
                         eligible 
@@ -206,15 +218,15 @@ export const StudentJobs: React.FC = () => {
           );
         })}
 
-        {filteredJobs.length === 0 && (
+        {filteredInternships.length === 0 && (
           <div className={`text-center py-16 rounded-xl border-2 border-dashed ${
             isDark ? 'border-slate-700 bg-slate-800/50' : 'border-slate-200'
           }`}>
-            <div className={`w-12 h-12 ${isDark ? 'bg-slate-700' : 'bg-slate-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-              <Briefcase className={isDark ? 'text-slate-500' : 'text-slate-400'} size={24} />
+            <div className={`w-14 h-14 ${isDark ? 'bg-slate-700' : 'bg-slate-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+              <Rocket className={isDark ? 'text-slate-500' : 'text-slate-400'} size={28} />
             </div>
-            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>No jobs found</p>
-            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Try adjusting your search</p>
+            <p className={`font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>No internships found</p>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Try adjusting your search or check back later</p>
           </div>
         )}
       </div>

@@ -10,7 +10,7 @@ import {
 export const Home: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const [counters, setCounters] = useState({ students: 0, companies: 0, placements: 0, packages: 0 });
+  const [counters, setCounters] = useState({ students: 0, companies: 0, internships: 0, stipend: 0 });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const Home: React.FC = () => {
     const steps = 60;
     const interval = duration / steps;
     
-    const targets = { students: 5000, companies: 200, placements: 3500, packages: 45 };
+    const targets = { students: 8000, companies: 150, internships: 5000, stipend: 80 };
     let step = 0;
     
     const timer = setInterval(() => {
@@ -31,8 +31,8 @@ export const Home: React.FC = () => {
       setCounters({
         students: Math.floor(targets.students * easeOut),
         companies: Math.floor(targets.companies * easeOut),
-        placements: Math.floor(targets.placements * easeOut),
-        packages: Math.floor(targets.packages * easeOut),
+        internships: Math.floor(targets.internships * easeOut),
+        stipend: Math.floor(targets.stipend * easeOut),
       });
       
       if (step >= steps) clearInterval(timer);
@@ -57,147 +57,147 @@ export const Home: React.FC = () => {
     setMobileMenuOpen(false);
   };
 
-  // Enhanced Features Data
+  // Enhanced Features Data - Internship Focused
   const features = [
     {
       icon: Cpu,
-      title: 'AI-Powered Job Matching',
-      description: 'Our intelligent algorithms analyze your skills, experience, and preferences to recommend the perfect job opportunities with 95% accuracy.',
+      title: 'Smart Internship Matching',
+      description: 'Our AI analyzes your skills, semester, and interests to recommend internships that perfectly align with your learning goals.',
       gradient: 'from-blue-500 to-cyan-500',
       stats: '95% Match Rate',
-      details: ['Skill-based matching', 'CGPA requirements', 'Location preferences', 'Salary expectations']
+      details: ['Skill-based matching', 'Semester-wise filtering', 'Domain preferences', 'Duration flexibility']
     },
     {
       icon: Shield,
-      title: 'Verified & Trusted Companies',
-      description: 'Every company undergoes rigorous verification to ensure authentic opportunities. No fake listings, only genuine offers.',
+      title: 'Verified Internships Only',
+      description: 'Every internship listing is verified to ensure genuine opportunities. No scams, no unpaid traps - only quality internships.',
       gradient: 'from-emerald-500 to-teal-500',
-      stats: '200+ Partners',
-      details: ['Background checks', 'Company reviews', 'Salary verification', 'Interview feedback']
+      stats: '150+ Companies',
+      details: ['Company verification', 'Stipend confirmation', 'Work culture reviews', 'Past intern feedback']
     },
     {
       icon: Bell,
-      title: 'Real-time Notifications',
-      description: 'Never miss an opportunity. Get instant alerts for new jobs, application updates, interview schedules, and offer letters.',
+      title: 'Instant Opportunity Alerts',
+      description: 'Be the first to know about new internships. Get instant notifications for openings matching your profile and preferences.',
       gradient: 'from-purple-500 to-pink-500',
-      stats: 'Instant Alerts',
-      details: ['Push notifications', 'Email updates', 'SMS alerts', 'Calendar sync']
+      stats: 'Real-time Updates',
+      details: ['Push notifications', 'Email alerts', 'Deadline reminders', 'Application updates']
     },
     {
       icon: BarChart3,
-      title: 'Advanced Analytics',
-      description: 'Track your progress with detailed analytics. See application trends, interview performance, and placement statistics.',
+      title: 'Application Tracker',
+      description: 'Monitor all your internship applications in one dashboard. Track status, deadlines, and interview schedules effortlessly.',
       gradient: 'from-orange-500 to-amber-500',
-      stats: 'Deep Insights',
-      details: ['Application tracking', 'Success metrics', 'Industry trends', 'Salary insights']
+      stats: 'Stay Organized',
+      details: ['Status tracking', 'Interview calendar', 'Offer comparison', 'Progress analytics']
     },
     {
       icon: FileText,
-      title: 'Resume Builder',
-      description: 'Create ATS-friendly resumes with our professional templates. Stand out from the crowd with a polished profile.',
+      title: 'Intern-Ready Resume',
+      description: 'Build a compelling resume tailored for internships. Highlight projects, skills, and coursework that recruiters look for.',
       gradient: 'from-rose-500 to-red-500',
-      stats: '50+ Templates',
-      details: ['ATS optimization', 'PDF export', 'Multiple formats', 'Expert tips']
+      stats: '30+ Templates',
+      details: ['Student-focused', 'Project showcase', 'Skill highlighting', 'One-click apply']
     },
     {
       icon: MessageSquare,
-      title: 'Interview Preparation',
-      description: 'Access curated interview questions, mock tests, and expert tips for top companies to ace your interviews.',
+      title: 'Interview Prep Kit',
+      description: 'Prepare for technical rounds with curated questions, HR tips, and mock interviews from past successful interns.',
       gradient: 'from-indigo-500 to-violet-500',
-      stats: '1000+ Questions',
-      details: ['Company-specific', 'Video tutorials', 'Mock interviews', 'Feedback system']
+      stats: '500+ Questions',
+      details: ['Role-specific prep', 'Peer mock interviews', 'Company insights', 'Success stories']
     },
   ];
 
-  // Enhanced Testimonials
+  // Enhanced Testimonials - Internship Success Stories
   const testimonials = [
     {
       name: 'Priya Sharma',
-      role: 'Software Engineer',
+      role: 'SDE Intern → Full-time',
       company: 'Google',
       image: 'PS',
-      content: 'UniPlace transformed my placement journey. Within a week of registering, I received interview calls from 5 top companies. The AI matching was incredibly accurate - every opportunity aligned with my skills and career goals.',
+      content: 'InternHub helped me land my dream internship at Google during my 3rd year! The AI matching found the perfect role for my skills. After a 6-month internship, I got a pre-placement offer. Best decision ever!',
       rating: 5,
-      batch: '2024',
-      package: '₹32 LPA',
+      batch: '3rd Year',
+      package: '₹80K/month',
       location: 'Bangalore'
     },
     {
       name: 'Rahul Verma',
-      role: 'Product Manager',
+      role: 'Product Intern',
       company: 'Microsoft',
       image: 'RV',
-      content: 'The platform\'s real-time notifications kept me ahead of the competition. I never missed a deadline or update. The interview prep resources were invaluable - I walked into every interview feeling confident.',
+      content: 'As a 2nd year student, finding quality internships was tough. InternHub\'s verified listings saved me from fake opportunities. Got an amazing summer internship at Microsoft with great mentorship!',
       rating: 5,
-      batch: '2024',
-      package: '₹28 LPA',
+      batch: '2nd Year',
+      package: '₹60K/month',
       location: 'Hyderabad'
     },
     {
       name: 'Sneha Patel',
-      role: 'Data Scientist',
+      role: 'Data Science Intern',
       company: 'Amazon',
       image: 'SP',
-      content: 'From resume building to final offer, UniPlace guided me through every step. The analytics dashboard helped me understand where I stood and what to improve. Landed my dream job with a package I never imagined!',
+      content: 'The instant alerts feature is a game-changer! I applied within minutes of Amazon posting their internship and got shortlisted. The interview prep section helped me crack the technical rounds.',
       rating: 5,
-      batch: '2023',
-      package: '₹35 LPA',
+      batch: '3rd Year',
+      package: '₹75K/month',
       location: 'Pune'
     },
     {
       name: 'Arjun Kumar',
-      role: 'Full Stack Developer',
-      company: 'Meta',
+      role: 'Frontend Intern',
+      company: 'Flipkart',
       image: 'AK',
-      content: 'As a tier-2 college student, I thought top companies were out of reach. UniPlace proved me wrong. The platform connected me with opportunities I didn\'t know existed. Now I\'m at Meta!',
+      content: 'Coming from a tier-2 college, I never thought I\'d intern at a top startup. InternHub leveled the playing field. Applied to 10 internships, got 4 interviews, and landed at Flipkart!',
       rating: 5,
-      batch: '2024',
-      package: '₹42 LPA',
-      location: 'Gurgaon'
+      batch: '2nd Year',
+      package: '₹50K/month',
+      location: 'Bangalore'
     },
     {
       name: 'Kavya Reddy',
-      role: 'ML Engineer',
-      company: 'Apple',
+      role: 'ML Research Intern',
+      company: 'Adobe',
       image: 'KR',
-      content: 'The company verification feature gave me peace of mind. No spam, no fake listings. Every application I submitted was to a genuine opportunity. The platform is a game-changer for students.',
+      content: 'Found a research internship that perfectly matched my ML interests. The application tracker helped me manage multiple applications without missing any deadlines. Highly recommend!',
       rating: 5,
-      batch: '2023',
-      package: '₹38 LPA',
-      location: 'Chennai'
+      batch: '3rd Year',
+      package: '₹70K/month',
+      location: 'Noida'
     },
   ];
 
-  // Company logos with industries
+  // Company logos with industries - Internship Partners
   const companies = [
     { name: 'Google', industry: 'Technology' },
     { name: 'Microsoft', industry: 'Technology' },
     { name: 'Amazon', industry: 'E-commerce' },
-    { name: 'Meta', industry: 'Social Media' },
-    { name: 'Apple', industry: 'Technology' },
-    { name: 'Netflix', industry: 'Entertainment' },
+    { name: 'Flipkart', industry: 'E-commerce' },
     { name: 'Adobe', industry: 'Software' },
-    { name: 'Salesforce', industry: 'Cloud' },
-    { name: 'Goldman Sachs', industry: 'Finance' },
-    { name: 'McKinsey', industry: 'Consulting' },
-    { name: 'Deloitte', industry: 'Consulting' },
-    { name: 'JP Morgan', industry: 'Finance' },
+    { name: 'Atlassian', industry: 'Software' },
+    { name: 'Razorpay', industry: 'Fintech' },
+    { name: 'PhonePe', industry: 'Fintech' },
+    { name: 'Swiggy', industry: 'Startup' },
+    { name: 'Zomato', industry: 'Startup' },
+    { name: 'CRED', industry: 'Fintech' },
+    { name: 'Zerodha', industry: 'Finance' },
   ];
 
-  // Enhanced How It Works Steps
+  // Enhanced How It Works Steps - Internship Focused
   const steps = [
     { 
       step: '01', 
-      title: 'Create Your Profile', 
-      description: 'Sign up with your college email, add academic details, skills, and upload your resume. Our AI analyzes your profile for optimal matching.',
+      title: 'Build Your Profile', 
+      description: 'Sign up, add your semester, skills, projects, and interests. Our AI creates your internship-ready profile instantly.',
       icon: UserCheck,
       color: 'violet',
       duration: '5 mins'
     },
     { 
       step: '02', 
-      title: 'Get Matched', 
-      description: 'Our AI engine matches you with relevant opportunities based on your skills, CGPA, preferences, and career goals.',
+      title: 'Discover Internships', 
+      description: 'Browse curated internships or let our AI recommend opportunities matching your skills, location, and duration preferences.',
       icon: Target,
       color: 'blue',
       duration: 'Instant'
@@ -205,38 +205,38 @@ export const Home: React.FC = () => {
     { 
       step: '03', 
       title: 'Apply & Track', 
-      description: 'Apply to jobs with one click. Track all applications in a unified dashboard with real-time status updates.',
+      description: 'One-click apply to multiple internships. Track all applications, deadlines, and interview schedules in one place.',
       icon: Send,
       color: 'emerald',
       duration: 'Real-time'
     },
     { 
       step: '04', 
-      title: 'Get Placed', 
-      description: 'Prepare with our resources, ace your interviews, and land your dream job at top companies.',
+      title: 'Land Your Internship', 
+      description: 'Ace interviews with our prep resources and secure your dream internship at top companies. Your career starts here!',
       icon: Award,
       color: 'amber',
       duration: 'Success!'
     },
   ];
 
-  // Platform benefits for different users
+  // Platform benefits for different users - Internship Focused
   const platformBenefits = {
     students: [
-      'Access to 500+ verified job opportunities',
-      'AI-powered job recommendations',
-      'One-click application process',
-      'Real-time application tracking',
-      'Interview preparation resources',
-      'Direct company connections'
+      'Access to 500+ verified internship opportunities',
+      'AI-powered internship recommendations',
+      'One-click application to multiple companies',
+      'Real-time application & interview tracking',
+      'Internship-specific interview prep',
+      'Connect directly with hiring managers'
     ],
     companies: [
-      'Access to 5000+ verified students',
-      'Smart candidate filtering',
-      'Automated screening tools',
-      'Campus engagement analytics',
-      'Simplified hiring workflow',
-      'Quality talent pipeline'
+      'Access to 8000+ talented students',
+      'Filter by skills, semester & CGPA',
+      'Streamlined intern recruitment',
+      'Campus engagement & analytics',
+      'Simplified shortlisting process',
+      'Build your talent pipeline early'
     ]
   };
 
@@ -251,7 +251,7 @@ export const Home: React.FC = () => {
                 <GraduationCap className="text-white" size={24} />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                UniPlace
+                InternHub
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-8">
@@ -308,18 +308,18 @@ export const Home: React.FC = () => {
             <div className={`space-y-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-200 rounded-full px-4 py-2">
                 <Sparkles size={16} className="text-violet-600" />
-                <span className="text-sm font-medium text-violet-700">#1 Campus Placement Platform in India</span>
+                <span className="text-sm font-medium text-violet-700">#1 Internship Discovery Platform for Students</span>
               </div>
               
               <h1 className="text-5xl lg:text-6xl font-black text-slate-900 leading-tight">
-                Your Gateway to{' '}
+                Find Your{' '}
                 <span className="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
-                  Dream Career
+                  Dream Internship
                 </span>
               </h1>
               
               <p className="text-xl text-slate-600 leading-relaxed max-w-lg">
-                Connect with <strong className="text-slate-900">200+ top companies</strong>, access exclusive opportunities, and accelerate your career with India's most trusted placement platform.
+                Discover <strong className="text-slate-900">verified internships</strong> from 150+ top companies. Get matched, apply instantly, and kickstart your career journey today.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -327,12 +327,12 @@ export const Home: React.FC = () => {
                   to="/register" 
                   className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-violet-500/30 transition-all hover:scale-105"
                 >
-                  Start Your Journey
+                  Explore Internships
                   <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <button className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-slate-200 text-slate-700 px-8 py-4 rounded-2xl font-bold text-lg hover:border-violet-300 hover:bg-violet-50 transition-all">
                   <Play size={20} className="text-violet-600" />
-                  Watch Demo
+                  How It Works
                 </button>
               </div>
 
@@ -374,8 +374,8 @@ export const Home: React.FC = () => {
                         <Briefcase className="text-white" size={24} />
                       </div>
                       <div>
-                        <h3 className="text-white font-bold">Software Engineer</h3>
-                        <p className="text-slate-400 text-sm">Google India • Bangalore</p>
+                        <h3 className="text-white font-bold">SDE Intern</h3>
+                        <p className="text-slate-400 text-sm">Google India • Summer 2025</p>
                       </div>
                     </div>
                     <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
@@ -386,12 +386,12 @@ export const Home: React.FC = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 text-slate-300 text-sm">
                       <span className="flex items-center gap-1"><Globe size={14} /> Bangalore</span>
-                      <span className="flex items-center gap-1"><Clock size={14} /> Full-time</span>
-                      <span className="flex items-center gap-1"><TrendingUp size={14} /> ₹32 LPA</span>
+                      <span className="flex items-center gap-1"><Clock size={14} /> 6 Months</span>
+                      <span className="flex items-center gap-1"><TrendingUp size={14} /> ₹80K/mo</span>
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      {['React', 'Node.js', 'Python', 'AWS', 'System Design'].map(skill => (
+                      {['React', 'JavaScript', 'Python', 'Git', 'DSA'].map(skill => (
                         <span key={skill} className="bg-slate-700 text-slate-300 px-3 py-1 rounded-lg text-sm">
                           {skill}
                         </span>
@@ -401,7 +401,7 @@ export const Home: React.FC = () => {
                     <div className="bg-slate-700/50 rounded-xl p-4">
                       <div className="flex justify-between text-sm mb-2">
                         <span className="text-slate-400">Applications</span>
-                        <span className="text-white font-medium">234 applied</span>
+                        <span className="text-white font-medium">156 applied</span>
                       </div>
                       <div className="h-2 bg-slate-600 rounded-full overflow-hidden">
                         <div className="h-full w-3/4 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full animate-progressBar"></div>
@@ -455,7 +455,7 @@ export const Home: React.FC = () => {
       <section id="companies" className="py-16 bg-slate-50 border-y border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-8">
           <p className="text-center text-slate-500 font-medium">
-            Trusted by students placed at <span className="text-slate-900 font-semibold">200+ top companies</span> worldwide
+            Students interning at <span className="text-slate-900 font-semibold">150+ top companies</span> worldwide
           </p>
         </div>
         <div className="relative">
@@ -483,19 +483,19 @@ export const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Numbers That Speak Success
+              Internships That Launch Careers
             </h2>
             <p className="text-violet-200 text-lg max-w-2xl mx-auto">
-              Join thousands of students who've launched their careers through UniPlace
+              Join thousands of students who've kickstarted their careers with InternHub
             </p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { value: counters.students, suffix: '+', label: 'Students Registered', icon: Users, description: 'Active profiles' },
-              { value: counters.companies, suffix: '+', label: 'Partner Companies', icon: Building2, description: 'Verified employers' },
-              { value: counters.placements, suffix: '+', label: 'Successful Placements', icon: Briefcase, description: 'And counting' },
-              { value: counters.packages, suffix: ' LPA', label: 'Highest Package', icon: TrendingUp, description: 'Top offer made' },
+              { value: counters.companies, suffix: '+', label: 'Partner Companies', icon: Building2, description: 'Hiring interns' },
+              { value: counters.internships, suffix: '+', label: 'Internships Secured', icon: Briefcase, description: 'And counting' },
+              { value: counters.stipend, suffix: 'K', label: 'Highest Stipend', icon: TrendingUp, description: 'Per month' },
             ].map((stat, i) => (
               <div key={i} className="text-center group">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur rounded-2xl mb-4 group-hover:scale-110 group-hover:bg-white/20 transition-all">
@@ -522,11 +522,11 @@ export const Home: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
               Everything You Need to{' '}
               <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                Get Placed
+                Land Your Internship
               </span>
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              A comprehensive platform designed to maximize your placement success
+              A comprehensive platform designed to maximize your internship success
             </p>
           </div>
 
@@ -659,13 +659,13 @@ export const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              <Heart size={16} /> Success Stories
+              <Heart size={16} /> Intern Success Stories
             </span>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">
-              Students Love UniPlace
+              Students Love InternHub
             </h2>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Real stories from real students who transformed their careers
+              Real stories from students who landed their dream internships
             </p>
           </div>
 
@@ -732,16 +732,16 @@ export const Home: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <span className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                <Award size={16} /> Why UniPlace
+                <Award size={16} /> Why InternHub
               </span>
               <h2 className="text-4xl font-black text-slate-900 mb-6">
                 The Trusted Choice for{' '}
                 <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                  Campus Placements
+                  Student Internships
                 </span>
               </h2>
               <p className="text-lg text-slate-600 mb-8">
-                We've built a platform that truly understands the needs of students and recruiters, delivering exceptional results consistently.
+                We've built a platform that truly understands what students need to land their first industry experience.
               </p>
               
               <div className="space-y-6">
@@ -795,24 +795,24 @@ export const Home: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full mb-6">
             <Sparkles size={16} className="text-violet-400" />
-            <span className="text-sm font-medium text-violet-200">Join 5,000+ successful students</span>
+            <span className="text-sm font-medium text-violet-200">Join 8,000+ students landing internships</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
-            Ready to Start Your{' '}
+            Ready to Land Your{' '}
             <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-              Success Story?
+              Dream Internship?
             </span>
           </h2>
           <p className="text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
-            Your dream job is just a click away. Join India's most trusted placement platform today.
+            Your career journey starts with the right internship. Join India's most trusted internship platform today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
               to="/register" 
               className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:shadow-violet-500/30 transition-all hover:scale-105"
             >
-              Create Free Account
+              Start Exploring Free
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
@@ -834,10 +834,10 @@ export const Home: React.FC = () => {
                 <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
                   <GraduationCap className="text-white" size={24} />
                 </div>
-                <span className="text-xl font-bold text-white">UniPlace</span>
+                <span className="text-xl font-bold text-white">InternHub</span>
               </Link>
               <p className="text-slate-400">
-                India's #1 campus placement platform. Connecting talented students with their dream careers since 2020.
+                India's #1 internship discovery platform. Connecting talented students with quality internship opportunities since 2024.
               </p>
               <div className="flex items-center gap-4 pt-2">
                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 hover:bg-violet-600 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-all">
@@ -877,7 +877,7 @@ export const Home: React.FC = () => {
             
             <div>
               <h4 className="text-white font-bold mb-4">Get Started</h4>
-              <p className="text-slate-400 text-sm mb-4">Ready to kickstart your career? Create your free account and join thousands of successful students.</p>
+              <p className="text-slate-400 text-sm mb-4">Ready to land your first internship? Create your free account and start exploring opportunities today.</p>
               <Link 
                 to="/register" 
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-violet-500/25 transition-all text-sm"
@@ -889,7 +889,7 @@ export const Home: React.FC = () => {
           </div>
           
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-sm">© 2025 UniPlace. All rights reserved. Built with ❤️ for students.</p>
+            <p className="text-slate-500 text-sm">© 2025 InternHub. All rights reserved. Built with ❤️ for students.</p>
             <div className="flex items-center gap-6 text-sm">
               <a href="#" className="text-slate-400 hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="text-slate-400 hover:text-white transition-colors">Terms of Service</a>

@@ -66,8 +66,8 @@ export const EditJob: React.FC = () => {
         rounds: formData.rounds.split(',').map(r => r.trim())
       });
 
-      alert('Job updated successfully!');
-      navigate('/company/dashboard');
+      alert('Internship updated successfully!');
+      navigate('/admin/dashboard');
     } catch (error) {
       alert('Failed to update job');
     }
@@ -78,7 +78,7 @@ export const EditJob: React.FC = () => {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Loading job details...</p>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Loading internship details...</p>
         </div>
       </div>
     );
@@ -92,9 +92,9 @@ export const EditJob: React.FC = () => {
           <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
             <Pencil size={24} />
           </div>
-          <h1 className="text-2xl font-bold">Edit Job Posting</h1>
+          <h1 className="text-2xl font-bold">Edit Internship</h1>
         </div>
-        <p className="text-white/80">Update the job details below</p>
+        <p className="text-white/80">Update the internship details below</p>
       </div>
 
       <div className={`rounded-xl shadow-lg border p-8 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
@@ -105,17 +105,17 @@ export const EditJob: React.FC = () => {
               <div className="p-2 bg-indigo-100 rounded-lg">
                 <Briefcase size={18} className="text-indigo-600" />
               </div>
-              <h2 className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Job Details</h2>
+              <h2 className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Internship Details</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
-                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Job Title</label>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Internship Title</label>
                 <input 
                   required 
                   type="text" 
                   className={`w-full px-4 py-3 border rounded-xl outline-none transition-all ${isDark ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
-                  placeholder="e.g., Software Engineer"
+                  placeholder="e.g., Software Development Intern"
                   value={formData.title} 
                   onChange={e => setFormData({...formData, title: e.target.value})} 
                 />
@@ -135,7 +135,7 @@ export const EditJob: React.FC = () => {
 
               <div>
                 <label className={`block text-sm font-semibold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  <IndianRupee size={14} className="text-indigo-500" /> Package (LPA)
+                  <IndianRupee size={14} className="text-indigo-500" /> Stipend (per month)
                 </label>
                 <input 
                   required 
