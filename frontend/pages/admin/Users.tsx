@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Api } from '../../services/api';
 import { useTheme } from '../../context/ThemeContext';
 import { User } from '../../types';
-import { Users, Search, Check, Building2, GraduationCap, Shield } from 'lucide-react';
+import { Users, Search, Check, Building2, GraduationCap, Shield, Trash2 } from 'lucide-react';
 
 export const UsersManagement: React.FC = () => {
   const { isDark } = useTheme();
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<string>('ALL');
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadUsers = async () => {
     const allUsers = await Api.getAllUsers();
@@ -20,6 +21,20 @@ export const UsersManagement: React.FC = () => {
   const handleApprove = async (userId: string) => {
     try { await Api.approveUser(userId); loadUsers(); } 
     catch (error: any) { alert(error.message || 'Failed to approve user'); }
+  };
+
+  const handleDelete = async (userId: string, userName: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${userName}"? This action cannot be undone.`)) {
+      return;
+    }
+    setDeleting(userId);
+    try {
+      await Api.deleteUser(userId);
+      loadUsers();
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete user');
+    }
+    setDeleting(null);
   };
 
   const filteredUsers = users.filter(user => {
@@ -147,6 +162,15 @@ export const UsersManagement: React.FC = () => {
                             className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-700"
                           >
                             <Check size={14} /> Approve
+                          </button>
+                        )}
+                        {user.role !== 'ADMIN' && (
+                          <button
+                            onClick={() => handleDelete(user.id, user.name || user.companyName || 'User')}
+                            disabled={deleting === user.id}
+                            className="flex items-center gap-1 px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 disabled:opacity-50"
+                          >
+                            <Trash2 size={14} /> {deleting === user.id ? 'Deleting...' : 'Delete'}
                           </button>
                         )}
                       </div>

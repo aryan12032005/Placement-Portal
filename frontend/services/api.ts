@@ -6,6 +6,66 @@ const USERS_KEY = 'uniplace_users';
 const JOBS_KEY = 'uniplace_jobs';
 const APPS_KEY = 'uniplace_apps';
 const NOTIFS_KEY = 'uniplace_notifs';
+const HACKATHONS_KEY = 'uniplace_hackathons';
+
+// Default hackathons data
+const DEFAULT_HACKATHONS = [
+  {
+    id: 'h1',
+    title: 'Google Summer of Code 2025',
+    organizer: 'Google',
+    logo: 'G',
+    deadline: '2025-04-02',
+    startDate: '2025-05-27',
+    endDate: '2025-08-25',
+    postedDate: '2025-12-15',
+    prize: 'Stipend + Swag',
+    participants: 18000,
+    mode: 'Online',
+    tags: ['Open Source', 'Coding', 'Mentorship'],
+    difficulty: 'Intermediate',
+    description: 'Contribute to open source projects with guidance from experienced mentors. A 12-week program for student developers.',
+    registrationUrl: 'https://summerofcode.withgoogle.com/',
+    status: 'Upcoming'
+  },
+  {
+    id: 'h2',
+    title: 'Microsoft Imagine Cup 2025',
+    organizer: 'Microsoft',
+    logo: 'M',
+    deadline: '2025-02-15',
+    startDate: '2025-03-01',
+    endDate: '2025-05-30',
+    postedDate: '2025-12-10',
+    prize: '₹75,00,000+',
+    participants: 50000,
+    mode: 'Hybrid',
+    location: 'Seattle, USA (Finals)',
+    tags: ['AI/ML', 'Cloud', 'Innovation'],
+    difficulty: 'Advanced',
+    description: 'Build innovative solutions using Microsoft technologies.',
+    registrationUrl: 'https://imaginecup.microsoft.com/',
+    status: 'Upcoming'
+  },
+  {
+    id: 'h3',
+    title: 'Flipkart GRiD 6.0',
+    organizer: 'Flipkart',
+    logo: 'F',
+    deadline: '2025-01-30',
+    startDate: '2025-02-15',
+    endDate: '2025-04-10',
+    postedDate: '2025-12-17',
+    prize: '₹6,00,000',
+    participants: 125000,
+    mode: 'Online',
+    tags: ['E-commerce', 'Problem Solving', 'Tech'],
+    difficulty: 'Intermediate',
+    description: 'India\'s largest tech challenge for engineering students.',
+    registrationUrl: 'https://unstop.com/hackathons/flipkart-grid',
+    status: 'Ongoing'
+  }
+];
 
 // Initialize storage if empty
 const initStorage = () => {
@@ -13,6 +73,7 @@ const initStorage = () => {
   if (!localStorage.getItem(JOBS_KEY)) localStorage.setItem(JOBS_KEY, JSON.stringify(MOCK_JOBS));
   if (!localStorage.getItem(APPS_KEY)) localStorage.setItem(APPS_KEY, JSON.stringify(MOCK_APPLICATIONS));
   if (!localStorage.getItem(NOTIFS_KEY)) localStorage.setItem(NOTIFS_KEY, JSON.stringify([]));
+  if (!localStorage.getItem(HACKATHONS_KEY)) localStorage.setItem(HACKATHONS_KEY, JSON.stringify(DEFAULT_HACKATHONS));
 };
 
 initStorage();
@@ -264,7 +325,21 @@ export const Api = {
     }
   },
 
-  // Applications
+  deleteJob: async (jobId: string): Promise<void> => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to delete job');
+    } catch (error) {
+      console.error('Delete job error:', error);
+      throw error;
+    }
+  },
 
   // Applications
   applyForJob: async (jobId: string, studentId: string, studentName: string, jobTitle: string, companyName: string): Promise<Application> => {
@@ -295,6 +370,31 @@ export const Api = {
     }
   },
 
+  deleteApplication: async (id: string): Promise<void> => {
+    const apps = getItems<Application>(APPS_KEY);
+    const filtered = apps.filter(a => a.id !== id);
+    setItems(APPS_KEY, filtered);
+  },
+
+  deleteUser: async (userId: string): Promise<void> => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Delete user error:', error);
+      throw error;
+    }
+  },
+
   // Notifications
   getNotifications: async (userId: string): Promise<Notification[]> => {
     const all = getItems<Notification>(NOTIFS_KEY);
@@ -312,5 +412,32 @@ export const Api = {
       type
     });
     setItems(NOTIFS_KEY, all);
+  },
+
+  // Hackathons
+  getHackathons: async (): Promise<any[]> => {
+    return getItems<any>(HACKATHONS_KEY);
+  },
+
+  postHackathon: async (hackathon: any): Promise<any> => {
+    const hackathons = getItems<any>(HACKATHONS_KEY);
+    const newHackathon = {
+      ...hackathon,
+      id: `h${Date.now()}`,
+      postedDate: new Date().toISOString().split('T')[0],
+      participants: Math.floor(Math.random() * 50000) + 1000,
+      logo: hackathon.organizer?.charAt(0) || 'H',
+      tags: hackathon.tags ? hackathon.tags.split(',').map((t: string) => t.trim()) : [],
+      status: new Date(hackathon.startDate) > new Date() ? 'Upcoming' : 'Ongoing'
+    };
+    hackathons.unshift(newHackathon); // Add to beginning (most recent first)
+    setItems(HACKATHONS_KEY, hackathons);
+    return newHackathon;
+  },
+
+  deleteHackathon: async (id: string): Promise<void> => {
+    const hackathons = getItems<any>(HACKATHONS_KEY);
+    const filtered = hackathons.filter(h => h.id !== id);
+    setItems(HACKATHONS_KEY, filtered);
   }
 };

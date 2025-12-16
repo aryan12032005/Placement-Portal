@@ -3,7 +3,7 @@ import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Application, ApplicationStatus, Job, User } from '../../types';
-import { Download, Check, X, Eye, GraduationCap, Mail, Phone, Award, FileText, Linkedin } from 'lucide-react';
+import { Download, Check, X, Eye, GraduationCap, Mail, Phone, Award, FileText, Linkedin, Trash2 } from 'lucide-react';
 
 export const Applicants: React.FC = () => {
   const { user } = useAuth();
@@ -14,6 +14,7 @@ export const Applicants: React.FC = () => {
   const [filterJob, setFilterJob] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -43,6 +44,20 @@ export const Applicants: React.FC = () => {
     
     const app = applications.find(a => a.id === appId);
     if(app) await Api.addNotification(app.studentId, `Your application for ${app.jobTitle} is now ${status}`);
+  };
+
+  const handleDeleteApplication = async (appId: string, studentName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the application from "${studentName}"?`)) {
+      return;
+    }
+    setDeleting(appId);
+    try {
+      await Api.deleteApplication(appId);
+      setApplications(prev => prev.filter(a => a.id !== appId));
+    } catch (error) {
+      alert('Failed to delete application');
+    }
+    setDeleting(null);
   };
 
   const getStudentDetails = (studentId: string): User | undefined => {
@@ -194,6 +209,14 @@ export const Applicants: React.FC = () => {
                           title="Reject"
                         >
                           <X size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteApplication(app.id, app.studentName)}
+                          disabled={deleting === app.id}
+                          className={`p-2 rounded-xl transition-all hover:scale-110 ${isDark ? 'bg-red-900/50 text-red-400 hover:bg-red-900' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                          title="Delete Application"
+                        >
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </td>

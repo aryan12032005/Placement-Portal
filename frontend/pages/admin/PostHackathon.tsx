@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { Api } from '../../services/api';
 import { 
   Trophy, Link as LinkIcon, FileText, Calendar, Award, Users, MapPin, 
   ArrowLeft, Send, Loader2, Globe, Sparkles, Tag, Clock, ExternalLink,
-  CheckCircle, AlertCircle
+  CheckCircle, AlertCircle, Trash2, ChevronDown, ChevronUp, Settings
 } from 'lucide-react';
+
+interface Hackathon {
+  id: string;
+  title: string;
+  organizer: string;
+  deadline: string;
+  mode: string;
+  status: string;
+  postedDate: string;
+}
 
 interface HackathonFormData {
   title: string;
@@ -31,6 +42,36 @@ export const PostHackathon: React.FC = () => {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [fetchError, setFetchError] = useState('');
   const [fetchSuccess, setFetchSuccess] = useState(false);
+  
+  // Management section state
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [showManagement, setShowManagement] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [loadingHackathons, setLoadingHackathons] = useState(true);
+
+  useEffect(() => {
+    fetchHackathons();
+  }, []);
+
+  const fetchHackathons = async () => {
+    setLoadingHackathons(true);
+    const data = await Api.getHackathons();
+    setHackathons(data);
+    setLoadingHackathons(false);
+  };
+
+  const handleDeleteHackathon = async (id: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    
+    setDeleting(id);
+    try {
+      await Api.deleteHackathon(id);
+      setHackathons(hackathons.filter(h => h.id !== id));
+    } catch (error) {
+      alert('Failed to delete hackathon');
+    }
+    setDeleting(null);
+  };
   
   const [formData, setFormData] = useState<HackathonFormData>({
     title: '',
@@ -62,8 +103,23 @@ export const PostHackathon: React.FC = () => {
       // In production, this would call a backend API that scrapes the hackathon page
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Mock data based on URL patterns
+      // Helper function to generate dynamic dates
+      const generateDates = () => {
+        const now = new Date();
+        const deadline = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+        const startDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
+        const endDate = new Date(now.getTime() + 16 * 24 * 60 * 60 * 1000); // 16 days from now
+        
+        return {
+          deadline: deadline.toISOString().split('T')[0],
+          startDate: startDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0]
+        };
+      };
+
+      // Mock data based on URL patterns with live dates
       let fetchedData: Partial<HackathonFormData> = {};
+      const dates = generateDates();
 
       if (urlInput.includes('unstop') || urlInput.includes('dare2compete')) {
         fetchedData = {
@@ -74,9 +130,17 @@ export const PostHackathon: React.FC = () => {
           mode: 'Online',
           difficulty: 'Intermediate',
           tags: 'Innovation, Technology, Problem Solving',
-          registrationUrl: urlInput
+          registrationUrl: urlInput,
+          deadline: dates.deadline,
+          startDate: dates.startDate,
+          endDate: dates.endDate
         };
       } else if (urlInput.includes('devfolio')) {
+        const devfolioDates = {
+          deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          startDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        };
         fetchedData = {
           title: 'Devfolio Hackathon',
           organizer: 'Devfolio',
@@ -85,9 +149,17 @@ export const PostHackathon: React.FC = () => {
           mode: 'Hybrid',
           difficulty: 'Intermediate',
           tags: 'Web3, Blockchain, Open Source',
-          registrationUrl: urlInput
+          registrationUrl: urlInput,
+          deadline: devfolioDates.deadline,
+          startDate: devfolioDates.startDate,
+          endDate: devfolioDates.endDate
         };
       } else if (urlInput.includes('hackerearth')) {
+        const heDates = {
+          deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          startDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        };
         fetchedData = {
           title: 'HackerEarth Challenge',
           organizer: 'HackerEarth',
@@ -96,9 +168,17 @@ export const PostHackathon: React.FC = () => {
           mode: 'Online',
           difficulty: 'Advanced',
           tags: 'Competitive Programming, Algorithms, DSA',
-          registrationUrl: urlInput
+          registrationUrl: urlInput,
+          deadline: heDates.deadline,
+          startDate: heDates.startDate,
+          endDate: heDates.endDate
         };
       } else if (urlInput.includes('mlh') || urlInput.includes('majorleaguehacking')) {
+        const mlhDates = {
+          deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          startDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 23 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        };
         fetchedData = {
           title: 'MLH Hackathon',
           organizer: 'Major League Hacking',
@@ -107,7 +187,29 @@ export const PostHackathon: React.FC = () => {
           mode: 'Hybrid',
           difficulty: 'Beginner',
           tags: 'Learning, Community, Beginner Friendly',
-          registrationUrl: urlInput
+          registrationUrl: urlInput,
+          deadline: mlhDates.deadline,
+          startDate: mlhDates.startDate,
+          endDate: mlhDates.endDate
+        };
+      } else if (urlInput.includes('devpost')) {
+        const devpostDates = {
+          deadline: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          startDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 17 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        };
+        fetchedData = {
+          title: 'Devpost Virtual Hackathon',
+          organizer: 'Devpost',
+          description: 'Participate in this global virtual hackathon. Build projects, win prizes, and connect with sponsors.',
+          prize: '$10,000',
+          mode: 'Online',
+          difficulty: 'Intermediate',
+          tags: 'Virtual, Global, Innovation',
+          registrationUrl: urlInput,
+          deadline: devpostDates.deadline,
+          startDate: devpostDates.startDate,
+          endDate: devpostDates.endDate
         };
       } else {
         // Generic fetch for unknown URLs
@@ -115,7 +217,10 @@ export const PostHackathon: React.FC = () => {
           title: 'Hackathon Event',
           organizer: 'Organization',
           description: 'Details fetched from the provided URL. Please verify and update the information.',
-          registrationUrl: urlInput
+          registrationUrl: urlInput,
+          deadline: dates.deadline,
+          startDate: dates.startDate,
+          endDate: dates.endDate
         };
       }
 
@@ -133,11 +238,29 @@ export const PostHackathon: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In production, this would save to database
-    console.log('Posting hackathon:', formData);
-    
-    alert('Hackathon posted successfully!');
-    navigate('/admin/dashboard');
+    try {
+      await Api.postHackathon(formData);
+      alert('Hackathon posted successfully!');
+      // Refresh the hackathons list
+      fetchHackathons();
+      // Reset form
+      setFormData({
+        title: '',
+        organizer: '',
+        description: '',
+        deadline: '',
+        startDate: '',
+        endDate: '',
+        prize: '',
+        mode: 'Online',
+        location: '',
+        difficulty: 'Intermediate',
+        tags: '',
+        registrationUrl: ''
+      });
+    } catch (error) {
+      alert('Failed to post hackathon. Please try again.');
+    }
   };
 
   return (
@@ -151,9 +274,97 @@ export const PostHackathon: React.FC = () => {
           <ArrowLeft size={20} className={isDark ? 'text-slate-300' : 'text-slate-600'} />
         </button>
         <div>
-          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Post New Hackathon</h1>
-          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Add a hackathon for students to discover</p>
+          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Manage Hackathons</h1>
+          <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Post new hackathons or manage existing ones</p>
         </div>
+      </div>
+
+      {/* Manage Existing Hackathons Section */}
+      <div className={`rounded-xl shadow-lg border overflow-hidden mb-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+        <button
+          onClick={() => setShowManagement(!showManagement)}
+          className={`w-full flex items-center justify-between p-4 ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-50'} transition-colors`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${isDark ? 'bg-purple-900/50' : 'bg-purple-100'}`}>
+              <Settings size={20} className={isDark ? 'text-purple-400' : 'text-purple-600'} />
+            </div>
+            <div className="text-left">
+              <h2 className={`font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                Manage Existing Hackathons
+              </h2>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {hackathons.length} hackathons posted
+              </p>
+            </div>
+          </div>
+          {showManagement ? <ChevronUp size={20} className={isDark ? 'text-slate-400' : 'text-slate-500'} /> : <ChevronDown size={20} className={isDark ? 'text-slate-400' : 'text-slate-500'} />}
+        </button>
+        
+        {showManagement && (
+          <div className={`border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+            {loadingHackathons ? (
+              <div className="p-8 text-center">
+                <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto"></div>
+                <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading hackathons...</p>
+              </div>
+            ) : hackathons.length === 0 ? (
+              <div className="p-8 text-center">
+                <Trophy size={40} className={`mx-auto mb-2 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+                <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>No hackathons posted yet</p>
+              </div>
+            ) : (
+              <div className="divide-y ${isDark ? 'divide-slate-700' : 'divide-slate-100'}">
+                {hackathons.map((hackathon) => (
+                  <div key={hackathon.id} className={`p-4 flex items-center justify-between ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'} transition-colors`}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold`}>
+                        {hackathon.organizer?.charAt(0) || 'H'}
+                      </div>
+                      <div>
+                        <h3 className={`font-medium ${isDark ? 'text-white' : 'text-slate-800'}`}>{hackathon.title}</h3>
+                        <div className={`flex items-center gap-3 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                          <span>{hackathon.organizer}</span>
+                          <span>•</span>
+                          <span>{hackathon.mode}</span>
+                          <span>•</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs ${
+                            hackathon.status === 'Ongoing' ? 'bg-green-100 text-green-700' : 
+                            hackathon.status === 'Upcoming' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {hackathon.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteHackathon(hackathon.id, hackathon.title)}
+                      disabled={deleting === hackathon.id}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isDark ? 'hover:bg-red-900/50 text-red-400 hover:text-red-300' : 'hover:bg-red-50 text-red-500 hover:text-red-600'
+                      } ${deleting === hackathon.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      title="Delete hackathon"
+                    >
+                      {deleting === hackathon.id ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Post New Hackathon Section */}
+      <div className={`mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <Trophy size={20} className="text-purple-500" />
+          Post New Hackathon
+        </h2>
       </div>
 
       {/* Input Mode Toggle */}

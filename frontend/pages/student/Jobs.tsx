@@ -3,7 +3,7 @@ import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Job, Application } from '../../types';
-import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket, Sparkles } from 'lucide-react';
 
 export const StudentJobs: React.FC = () => {
   const { user } = useAuth();
@@ -12,7 +12,14 @@ export const StudentJobs: React.FC = () => {
   const [myApps, setMyApps] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterRecent, setFilterRecent] = useState<boolean>(false);
 
+  const isRecentlyPosted = (postedDate: string) => {
+    const posted = new Date(postedDate);
+    const now = new Date();
+    const diffDays = Math.ceil((now.getTime() - posted.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays <= 7; // Posted within last 7 days
+  };
   useEffect(() => {
     const fetchData = async () => {
       const allJobs = await Api.getJobs();
@@ -71,10 +78,14 @@ export const StudentJobs: React.FC = () => {
     alert('Applied successfully!');
   };
 
-  const filteredInternships = internships.filter(internship => 
-    internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    internship.companyName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredInternships = internships
+    .filter(internship => {
+      const matchesSearch = internship.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            internship.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRecent = !filterRecent || isRecentlyPosted(internship.postedDate || new Date().toISOString());
+      return matchesSearch && matchesRecent;
+    })
+    .sort((a, b) => new Date(b.postedDate || 0).getTime() - new Date(a.postedDate || 0).getTime()); // Sort by recent first
 
   const getDaysLeft = (deadline: string) => {
     const diff = new Date(deadline).getTime() - new Date().getTime();
@@ -90,7 +101,7 @@ export const StudentJobs: React.FC = () => {
           <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Available Internships</h1>
           <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>{internships.length} opportunities available</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
@@ -105,6 +116,17 @@ export const StudentJobs: React.FC = () => {
               }`}
             />
           </div>
+          <button
+            onClick={() => setFilterRecent(!filterRecent)}
+            className={`px-4 py-2.5 rounded-lg border flex items-center gap-2 transition-all font-medium text-sm ${
+              filterRecent
+                ? 'bg-indigo-600 border-indigo-600 text-white'
+                : isDark ? 'bg-slate-700 border-slate-600 text-white hover:bg-slate-600' : 'bg-white border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            <Sparkles size={16} />
+            Recent
+          </button>
           <div className={`px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
             isDark ? 'bg-slate-700 text-slate-300' : 'bg-indigo-50 text-indigo-700'
           }`}>
@@ -121,16 +143,27 @@ export const StudentJobs: React.FC = () => {
           const isApplied = myApps.includes(internship.id);
           const { eligible, reason } = checkEligibility(internship);
           const daysLeft = getDaysLeft(internship.deadline);
+          const isRecent = isRecentlyPosted(internship.postedDate || new Date().toISOString());
           
           return (
             <div 
               key={internship.id} 
-              className={`p-6 rounded-xl border transition-all ${
+              className={`p-6 rounded-xl border transition-all relative ${
                 isDark 
                   ? `bg-slate-800 ${isApplied ? 'border-emerald-700' : 'border-slate-700 hover:border-slate-600'}` 
                   : `bg-white ${isApplied ? 'border-emerald-200 bg-emerald-50/50' : 'border-slate-200 hover:border-slate-300'}`
               }`}
             >
+              {/* Recently Posted Badge */}
+              {isRecent && (
+                <div className="absolute top-4 right-4 z-10">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center gap-1 shadow-lg">
+                    <Sparkles size={12} />
+                    New
+                  </span>
+                </div>
+              )}
+              
               <div className="flex flex-col lg:flex-row justify-between gap-5">
                 <div className="flex-1">
                   <div className="flex items-start gap-4">
