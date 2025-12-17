@@ -138,7 +138,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Google Auth
 app.post('/api/auth/google', async (req, res) => {
-  const { credential, action } = req.body; // action: 'login' or 'register'
+  const { credential } = req.body;
 
   try {
     // Verify the Google token
@@ -153,12 +153,8 @@ app.post('/api/auth/google', async (req, res) => {
     // Check if user exists
     let user = await User.findOne({ email });
 
-    if (action === 'login') {
-      // Login flow - user must already exist
-      if (!user) {
-        return res.status(401).json({ message: 'No account found. Please sign up first.' });
-      }
-      
+    if (user) {
+      // User exists, log them in
       res.json({
         id: user._id,
         name: user.name,
@@ -179,12 +175,7 @@ app.post('/api/auth/google', async (req, res) => {
         resumeUrl: user.resumeUrl,
         profilePicture: user.profilePicture || picture,
       });
-    } else if (action === 'register') {
-      // Register flow - user must NOT exist
-      if (user) {
-        return res.status(400).json({ message: 'Account already exists. Please sign in instead.' });
-      }
-      
+    } else {
       // Create new user with STUDENT role (auto-approved)
       user = await User.create({
         name,
@@ -205,8 +196,6 @@ app.post('/api/auth/google', async (req, res) => {
         token: generateToken(user._id),
         profilePicture: picture,
       });
-    } else {
-      res.status(400).json({ message: 'Invalid action' });
     }
   } catch (error) {
     console.error('Google auth error:', error);

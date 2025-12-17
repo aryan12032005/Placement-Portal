@@ -68,8 +68,8 @@ export const Login: React.FC = () => {
           setError('Google sign-in failed. Please try again.');
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'No account found. Please sign up first.');
+    } catch (err) {
+      setError('Google sign-in failed. Please try again.');
     }
     setLoading(false);
   };

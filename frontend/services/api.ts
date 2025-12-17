@@ -139,44 +139,19 @@ export const Api = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ credential, action: 'login' }),
+        body: JSON.stringify({ credential }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Google login failed');
+        return null;
       }
 
       const data = await response.json();
       localStorage.setItem('token', data.token);
       return data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Google login error:', error);
-      throw error;
-    }
-  },
-
-  googleRegister: async (credential: string): Promise<User | null> => {
-    try {
-      const response = await fetch(`${API_URL}/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ credential, action: 'register' }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Google registration failed');
-      }
-
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      return data;
-    } catch (error: any) {
-      console.error('Google register error:', error);
-      throw error;
+      return null;
     }
   },
 
