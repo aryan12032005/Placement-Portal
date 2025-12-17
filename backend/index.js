@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('./models/User');
 const Job = require('./models/Job');
 const { protect, admin, company } = require('./middleware/authMiddleware');
@@ -11,6 +12,8 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const GOOGLE_CLIENT_ID = '54168296388-6k44kvp61sg35ldnfatuij2s64h2prq8.apps.googleusercontent.com';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 app.use(cors());
 app.use(express.json());
@@ -130,6 +133,73 @@ app.post('/api/auth/login', async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Google Auth
+app.post('/api/auth/google', async (req, res) => {
+  const { credential } = req.body;
+
+  try {
+    // Verify the Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // User exists, log them in
+      res.json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        approved: user.approved,
+        token: generateToken(user._id),
+        phone: user.phone,
+        linkedIn: user.linkedIn,
+        rollNumber: user.rollNumber,
+        branch: user.branch,
+        course: user.course,
+        collegeName: user.collegeName,
+        graduationYear: user.graduationYear,
+        educationStatus: user.educationStatus,
+        cgpa: user.cgpa,
+        skills: user.skills,
+        resumeUrl: user.resumeUrl,
+        profilePicture: user.profilePicture || picture,
+      });
+    } else {
+      // Create new user with STUDENT role (auto-approved)
+      user = await User.create({
+        name,
+        email,
+        password: googleId + Date.now(), // Random password since they use Google auth
+        role: 'STUDENT',
+        approved: true,
+        googleId,
+        profilePicture: picture,
+      });
+
+      res.status(201).json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        approved: user.approved,
+        token: generateToken(user._id),
+        profilePicture: picture,
+      });
+    }
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(401).json({ message: 'Google authentication failed' });
   }
 });
 

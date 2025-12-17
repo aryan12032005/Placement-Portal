@@ -132,6 +132,29 @@ export const Api = {
     }
   },
 
+  googleLogin: async (credential: string): Promise<User | null> => {
+    try {
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ credential }),
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      return data;
+    } catch (error) {
+      console.error('Google login error:', error);
+      return null;
+    }
+  },
+
   updateUser: async (user: User): Promise<User> => {
     try {
       const token = localStorage.getItem('token');
