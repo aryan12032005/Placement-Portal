@@ -264,104 +264,51 @@ export const Api = {
 
   // Jobs
   getJobs: async (): Promise<Job[]> => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/jobs`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to fetch jobs');
-      const jobs = await response.json();
-      return jobs.map((j: any) => ({ ...j, id: j._id }));
-    } catch (error) {
-      console.error('Get jobs error:', error);
-      return [];
-    }
+    // Use localStorage for consistency (like hackathons)
+    return getItems<Job>(JOBS_KEY);
   },
   
   postJob: async (job: Omit<Job, 'id' | 'postedDate' | 'companyName'>, companyName: string): Promise<Job> => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/jobs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(job),
-      });
-      if (!response.ok) throw new Error('Failed to post job');
-      const newJob = await response.json();
-      return { ...newJob, id: newJob._id };
-    } catch (error) {
-      console.error('Post job error:', error);
-      throw error;
-    }
+    // Use localStorage for consistency (like hackathons)
+    const jobs = getItems<Job>(JOBS_KEY);
+    const newJob: Job = {
+      ...job,
+      id: `j${Date.now()}`,
+      companyName: companyName,
+      postedDate: new Date().toISOString().split('T')[0],
+    } as Job;
+    jobs.unshift(newJob); // Add to beginning (most recent first)
+    setItems(JOBS_KEY, jobs);
+    return newJob;
   },
 
   stopRecruiting: async (jobId: string): Promise<Job> => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/jobs/${jobId}/stop`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to stop recruiting');
-      const updatedJob = await response.json();
-      return { ...updatedJob, id: updatedJob._id };
-    } catch (error) {
-      console.error('Stop recruiting error:', error);
-      throw error;
-    }
+    const jobs = getItems<Job>(JOBS_KEY);
+    const jobIndex = jobs.findIndex(j => j.id === jobId);
+    if (jobIndex === -1) throw new Error('Job not found');
+    jobs[jobIndex] = { ...jobs[jobIndex], status: 'Stopped' };
+    setItems(JOBS_KEY, jobs);
+    return jobs[jobIndex];
   },
 
   updateJob: async (jobId: string, job: Partial<Job>): Promise<Job> => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/jobs/${jobId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(job),
-      });
-      if (!response.ok) throw new Error('Failed to update job');
-      const updatedJob = await response.json();
-      return { ...updatedJob, id: updatedJob._id };
-    } catch (error) {
-      console.error('Update job error:', error);
-      throw error;
-    }
+    const jobs = getItems<Job>(JOBS_KEY);
+    const jobIndex = jobs.findIndex(j => j.id === jobId);
+    if (jobIndex === -1) throw new Error('Job not found');
+    jobs[jobIndex] = { ...jobs[jobIndex], ...job };
+    setItems(JOBS_KEY, jobs);
+    return jobs[jobIndex];
   },
 
   getJobById: async (jobId: string): Promise<Job | null> => {
-    try {
-      const jobs = await Api.getJobs();
-      return jobs.find(j => j.id === jobId) || null;
-    } catch (error) {
-      console.error('Get job by id error:', error);
-      return null;
-    }
+    const jobs = getItems<Job>(JOBS_KEY);
+    return jobs.find(j => j.id === jobId) || null;
   },
 
   deleteJob: async (jobId: string): Promise<void> => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/jobs/${jobId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to delete job');
-    } catch (error) {
-      console.error('Delete job error:', error);
-      throw error;
-    }
+    const jobs = getItems<Job>(JOBS_KEY);
+    const filtered = jobs.filter(j => j.id !== jobId);
+    setItems(JOBS_KEY, filtered);
   },
 
   // Applications

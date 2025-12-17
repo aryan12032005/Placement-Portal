@@ -3,7 +3,7 @@ import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Job, Application } from '../../types';
-import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket, Sparkles } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket, Sparkles, ExternalLink } from 'lucide-react';
 
 export const StudentJobs: React.FC = () => {
   const { user } = useAuth();
@@ -228,7 +228,18 @@ export const StudentJobs: React.FC = () => {
                 </div>
 
                 <div className="flex items-center">
-                  {isApplied ? (
+                  {internship.registrationUrl ? (
+                    // External registration link (URL-posted internship)
+                    <a
+                      href={internship.registrationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium text-sm rounded-lg transition-all shadow-md hover:shadow-lg"
+                    >
+                      Register Now
+                      <ExternalLink size={14} />
+                    </a>
+                  ) : isApplied ? (
                     <button disabled className="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 cursor-default">
                       <CheckCircle size={16} /> Applied
                     </button>

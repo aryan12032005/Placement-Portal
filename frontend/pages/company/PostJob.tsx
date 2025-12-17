@@ -71,7 +71,8 @@ export const PostJob: React.FC = () => {
     minCGPA: 0,
     branches: 'Computer Science, Information Technology, Electronics',
     deadline: '',
-    rounds: 'Online Test, Technical Interview, HR'
+    rounds: 'Online Test, Technical Interview, HR',
+    registrationUrl: ''
   });
 
   const handleFetchFromUrl = async () => {
@@ -171,18 +172,21 @@ export const PostJob: React.FC = () => {
           deadline: generateDeadline(5) // 5 days from now
         };
       } else {
-        // Generic fetch for unknown URLs
+        // Generic fetch for unknown URLs - provide sensible defaults
         fetchedData = {
           title: 'Internship Opportunity',
           description: 'Details fetched from the provided URL. Please verify and update the information.',
-          package: '',
-          location: '',
+          package: '15000',
+          location: 'Remote',
           type: JobType.INTERNSHIP,
+          minCGPA: 6.0,
+          branches: 'All Branches',
+          rounds: 'Technical Interview, HR Interview',
           deadline: generateDeadline(14)
         };
       }
 
-      setFormData(prev => ({ ...prev, ...fetchedData }));
+      setFormData(prev => ({ ...prev, ...fetchedData, registrationUrl: urlInput.trim() }));
       setFetchSuccess(true);
       setInputMode('manual'); // Switch to manual to show and edit the fetched data
 
@@ -197,36 +201,42 @@ export const PostJob: React.FC = () => {
     e.preventDefault();
     if (!user) return;
 
-    await Api.postJob({
-      companyId: user.id,
-      title: formData.title,
-      description: formData.description,
-      package: Number(formData.package),
-      location: formData.location,
-      type: formData.type,
-      deadline: formData.deadline,
-      eligibility: {
-        minCGPA: Number(formData.minCGPA),
-        branches: formData.branches.split(',').map(b => b.trim())
-      },
-      rounds: formData.rounds.split(',').map(r => r.trim())
-    }, user.companyName || user.name);
+    try {
+      await Api.postJob({
+        companyId: user.id,
+        title: formData.title,
+        description: formData.description,
+        package: Number(formData.package),
+        location: formData.location,
+        type: formData.type,
+        deadline: formData.deadline,
+        eligibility: {
+          minCGPA: Number(formData.minCGPA),
+          branches: formData.branches.split(',').map(b => b.trim())
+        },
+        rounds: formData.rounds.split(',').map(r => r.trim()),
+        registrationUrl: formData.registrationUrl || undefined
+      }, user.companyName || user.name);
 
-    alert('Internship posted successfully!');
-    // Refresh the internships list
-    fetchInternships();
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      package: '',
-      location: '',
-      type: JobType.INTERNSHIP,
-      minCGPA: 0,
-      branches: 'Computer Science, Information Technology, Electronics',
-      deadline: '',
-      rounds: 'Online Test, Technical Interview, HR'
-    });
+      alert('Internship posted successfully!');
+      // Refresh the internships list
+      fetchInternships();
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        package: '',
+        location: '',
+        type: JobType.INTERNSHIP,
+        minCGPA: 0,
+        branches: 'Computer Science, Information Technology, Electronics',
+        deadline: '',
+        rounds: 'Online Test, Technical Interview, HR',
+        registrationUrl: ''
+      });
+    } catch (error) {
+      alert('Failed to post internship. Please try again.');
+    }
   };
 
   return (

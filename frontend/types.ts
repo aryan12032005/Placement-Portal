@@ -52,6 +52,7 @@ export interface Job {
   };
   rounds: string[];
   status?: 'Active' | 'Stopped';
+  registrationUrl?: string; // URL for external registration (from URL posts)
 }
 
 export enum ApplicationStatus {
