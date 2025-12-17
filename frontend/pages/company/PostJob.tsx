@@ -81,116 +81,57 @@ export const PostJob: React.FC = () => {
       return;
     }
 
+    // Validate URL format
+    try {
+      new URL(urlInput.trim());
+    } catch {
+      setFetchError('Please enter a valid URL (e.g., https://example.com/internship)');
+      return;
+    }
+
     setFetchLoading(true);
     setFetchError('');
     setFetchSuccess(false);
 
     try {
-      // Simulate fetching data from URL
-      // In production, this would call a backend API that scrapes the internship page
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call backend scraping API
+      const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000/api' 
+        : 'https://placement-portal-1ca3.onrender.com/api';
+      
+      const response = await fetch(`${API_URL}/scrape`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: urlInput.trim(), type: 'internship' }),
+      });
 
-      // Helper function to generate dynamic deadline dates
-      const generateDeadline = (daysFromNow: number) => {
-        const date = new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000);
-        return date.toISOString().split('T')[0];
-      };
-
-      // Mock data based on URL patterns with live dates
-      let fetchedData: Partial<typeof formData> = {};
-
-      if (urlInput.includes('internshala')) {
-        fetchedData = {
-          title: 'Software Development Intern',
-          description: 'Work on exciting projects with our engineering team. Learn industry best practices and contribute to real products.',
-          package: '25000',
-          location: 'Bangalore',
-          type: JobType.INTERNSHIP,
-          minCGPA: 7.0,
-          branches: 'Computer Science, Information Technology',
-          rounds: 'Online Assessment, Technical Interview',
-          deadline: generateDeadline(10) // 10 days from now
-        };
-      } else if (urlInput.includes('linkedin')) {
-        fetchedData = {
-          title: 'Data Science Intern',
-          description: 'Join our data team to work on ML models and analytics. Great learning opportunity with mentorship.',
-          package: '30000',
-          location: 'Remote',
-          type: JobType.INTERNSHIP,
-          minCGPA: 7.5,
-          branches: 'Computer Science, Mathematics, Statistics',
-          rounds: 'Resume Screening, Technical Round, HR',
-          deadline: generateDeadline(14) // 14 days from now
-        };
-      } else if (urlInput.includes('unstop') || urlInput.includes('dare2compete')) {
-        fetchedData = {
-          title: 'Product Management Intern',
-          description: 'Work closely with product managers to understand user needs and help build product roadmaps.',
-          package: '20000',
-          location: 'Mumbai',
-          type: JobType.INTERNSHIP,
-          minCGPA: 6.5,
-          branches: 'All Branches',
-          rounds: 'Case Study, Interview',
-          deadline: generateDeadline(7) // 7 days from now
-        };
-      } else if (urlInput.includes('naukri')) {
-        fetchedData = {
-          title: 'Full Stack Developer Intern',
-          description: 'Build web applications using modern technologies. Work on both frontend and backend development.',
-          package: '35000',
-          location: 'Hyderabad',
-          type: JobType.INTERNSHIP,
-          minCGPA: 7.0,
-          branches: 'Computer Science, Information Technology, Electronics',
-          rounds: 'Coding Test, Technical Interview, HR Interview',
-          deadline: generateDeadline(12) // 12 days from now
-        };
-      } else if (urlInput.includes('indeed')) {
-        fetchedData = {
-          title: 'Backend Developer Intern',
-          description: 'Work on scalable backend systems using Node.js/Python. Learn microservices architecture.',
-          package: '28000',
-          location: 'Pune',
-          type: JobType.INTERNSHIP,
-          minCGPA: 6.5,
-          branches: 'Computer Science, Information Technology',
-          rounds: 'Technical Assessment, Manager Interview',
-          deadline: generateDeadline(9) // 9 days from now
-        };
-      } else if (urlInput.includes('angellist') || urlInput.includes('wellfound')) {
-        fetchedData = {
-          title: 'Startup Intern - Growth',
-          description: 'Join a fast-growing startup. Work across functions and learn what it takes to build a company from ground up.',
-          package: '22000',
-          location: 'Remote',
-          type: JobType.INTERNSHIP,
-          minCGPA: 6.0,
-          branches: 'All Branches',
-          rounds: 'Culture Fit Interview, Task Assignment',
-          deadline: generateDeadline(5) // 5 days from now
-        };
-      } else {
-        // Generic fetch for unknown URLs - provide sensible defaults
-        fetchedData = {
-          title: 'Internship Opportunity',
-          description: 'Details fetched from the provided URL. Please verify and update the information.',
-          package: '15000',
-          location: 'Remote',
-          type: JobType.INTERNSHIP,
-          minCGPA: 6.0,
-          branches: 'All Branches',
-          rounds: 'Technical Interview, HR Interview',
-          deadline: generateDeadline(14)
-        };
+      if (!response.ok) {
+        throw new Error('Failed to fetch data from URL');
       }
+
+      const data = await response.json();
+
+      // Map scraped data to form fields
+      const fetchedData = {
+        title: data.title || 'Internship Opportunity',
+        description: data.description || 'Details fetched from the provided URL. Please verify and update the information.',
+        package: data.package || '15000',
+        location: data.location || 'Remote',
+        type: JobType.INTERNSHIP,
+        minCGPA: data.minCGPA || 6.0,
+        branches: data.branches || 'Computer Science, Information Technology',
+        rounds: data.rounds || 'Online Assessment, Technical Interview, HR Interview',
+        deadline: data.deadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      };
 
       setFormData(prev => ({ ...prev, ...fetchedData, registrationUrl: urlInput.trim() }));
       setFetchSuccess(true);
       setInputMode('manual'); // Switch to manual to show and edit the fetched data
 
     } catch (error) {
+      console.error('Fetch error:', error);
       setFetchError('Failed to fetch data from URL. Please try again or enter details manually.');
     } finally {
       setFetchLoading(false);

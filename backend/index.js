@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const User = require('./models/User');
 const Job = require('./models/Job');
 const { protect, admin, company } = require('./middleware/authMiddleware');
@@ -372,6 +374,389 @@ app.put('/api/jobs/:id/stop', protect, company, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// URL Scraping endpoint for internships and hackathons
+app.post('/api/scrape', async (req, res) => {
+  const { url, type } = req.body; // type: 'internship' or 'hackathon'
+
+  if (!url) {
+    return res.status(400).json({ message: 'URL is required' });
+  }
+
+  // Helper to extract info from URL when scraping fails
+  const extractFromUrl = (url, type) => {
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.replace('www.', '');
+      const pathParts = urlObj.pathname.split('/').filter(p => p && p.length > 2);
+      
+      // Extract title from URL path
+      let title = pathParts[pathParts.length - 1] || pathParts[0] || '';
+      title = title.replace(/[-_]/g, ' ').replace(/\d+$/, '').trim();
+      title = title.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      
+      // Get organizer from hostname
+      const orgParts = hostname.split('.');
+      const organizer = orgParts[0].charAt(0).toUpperCase() + orgParts[0].slice(1);
+      
+      // Determine location from URL hints
+      let location = 'Remote';
+      const urlLower = url.toLowerCase();
+      if (urlLower.includes('mumbai')) location = 'Mumbai';
+      else if (urlLower.includes('bangalore') || urlLower.includes('bengaluru')) location = 'Bangalore';
+      else if (urlLower.includes('delhi') || urlLower.includes('noida') || urlLower.includes('gurgaon')) location = 'Delhi NCR';
+      else if (urlLower.includes('hyderabad')) location = 'Hyderabad';
+      else if (urlLower.includes('pune')) location = 'Pune';
+      else if (urlLower.includes('chennai')) location = 'Chennai';
+      
+      const baseResult = {
+        title: title || (type === 'hackathon' ? 'Hackathon Event' : 'Internship Opportunity'),
+        description: `Opportunity from ${organizer}. Please verify details on the original page.`,
+        organizer: organizer,
+        url: url,
+      };
+      
+      if (type === 'hackathon') {
+        return {
+          ...baseResult,
+          deadline: generateFutureDate(14),
+          startDate: generateFutureDate(21),
+          endDate: generateFutureDate(23),
+          prize: '₹1,00,000',
+          mode: 'Online',
+          location: location,
+          difficulty: 'Intermediate',
+          tags: 'Technology, Innovation',
+        };
+      } else {
+        return {
+          ...baseResult,
+          deadline: generateFutureDate(14),
+          package: '15000',
+          location: location,
+          minCGPA: 6.0,
+          branches: 'Computer Science, Information Technology',
+          rounds: 'Online Assessment, Technical Interview, HR Interview',
+        };
+      }
+    } catch {
+      return null;
+    }
+  };
+
+  try {
+    // Fetch the page with a browser-like user agent
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+      },
+      timeout: 8000,
+    });
+
+    const $ = cheerio.load(response.data);
+
+    // Extract metadata from Open Graph and meta tags
+    const getMetaContent = (selectors) => {
+      for (const selector of selectors) {
+        const content = $(selector).attr('content') || $(selector).text();
+        if (content && content.trim()) return content.trim();
+      }
+      return '';
+    };
+
+    // Get title from various sources
+    const title = getMetaContent([
+      'meta[property="og:title"]',
+      'meta[name="twitter:title"]',
+      'title',
+      'h1',
+    ]) || $('h1').first().text().trim() || $('title').text().trim();
+
+    // Get description
+    const description = getMetaContent([
+      'meta[property="og:description"]',
+      'meta[name="description"]',
+      'meta[name="twitter:description"]',
+    ]) || $('p').first().text().trim().substring(0, 500);
+
+    // Get organization/company name
+    const organizer = getMetaContent([
+      'meta[property="og:site_name"]',
+      'meta[name="author"]',
+    ]) || extractOrganizer(url, $);
+
+    // Extract dates from page content
+    const pageText = $('body').text();
+    const dates = extractDates(pageText);
+
+    // Extract prize/stipend information
+    const prizeInfo = extractPrizeOrStipend(pageText, type);
+
+    // Extract location
+    const location = extractLocation(pageText, $);
+
+    // Extract mode (online/offline/hybrid)
+    const mode = extractMode(pageText);
+
+    // Build response based on type
+    let result = {
+      title: cleanTitle(title),
+      description: description.substring(0, 1000),
+      organizer: organizer,
+      url: url,
+    };
+
+    if (type === 'hackathon') {
+      result = {
+        ...result,
+        deadline: dates.deadline || dates.registrationEnd || generateFutureDate(14),
+        startDate: dates.startDate || generateFutureDate(21),
+        endDate: dates.endDate || generateFutureDate(23),
+        prize: prizeInfo.prize || 'Exciting prizes',
+        mode: mode,
+        location: location,
+        difficulty: 'Intermediate',
+        tags: extractTags(pageText, $),
+      };
+    } else {
+      // internship
+      result = {
+        ...result,
+        deadline: dates.deadline || generateFutureDate(14),
+        package: prizeInfo.stipend || '15000',
+        location: location || 'Remote',
+        minCGPA: 6.0,
+        branches: extractBranches(pageText),
+        rounds: extractRounds(pageText),
+      };
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Scrape error:', error.message);
+    
+    // Fallback: extract data from URL when scraping fails
+    const fallbackData = extractFromUrl(url, type);
+    if (fallbackData) {
+      return res.json(fallbackData);
+    }
+    
+    res.status(500).json({ 
+      message: 'Failed to fetch data from URL',
+      error: error.message 
+    });
+  }
+});
+
+// Helper functions for scraping
+function extractOrganizer(url, $) {
+  try {
+    const hostname = new URL(url).hostname.replace('www.', '');
+    // Check for company names in the page
+    const logoAlt = $('img[alt*="logo"], img[class*="logo"]').attr('alt') || '';
+    if (logoAlt) return logoAlt.replace(/logo/i, '').trim();
+    
+    // Extract from hostname
+    const parts = hostname.split('.');
+    return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  } catch {
+    return 'Organization';
+  }
+}
+
+function extractDates(text) {
+  const dates = {};
+  const datePatterns = [
+    // Common date formats
+    /(?:deadline|last date|apply by|register by|registration ends?)[:\s]*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/gi,
+    /(?:deadline|last date|apply by)[:\s]*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*,?\s*\d{2,4})/gi,
+    /(?:starts?|begins?|start date)[:\s]*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/gi,
+    /(?:starts?|begins?)[:\s]*(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*,?\s*\d{2,4})/gi,
+    /(?:ends?|end date)[:\s]*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/gi,
+  ];
+
+  for (const pattern of datePatterns) {
+    const match = pattern.exec(text);
+    if (match) {
+      try {
+        const parsed = new Date(match[1]);
+        if (!isNaN(parsed.getTime())) {
+          if (pattern.source.includes('deadline') || pattern.source.includes('last') || pattern.source.includes('apply')) {
+            dates.deadline = parsed.toISOString().split('T')[0];
+          } else if (pattern.source.includes('start') || pattern.source.includes('begin')) {
+            dates.startDate = parsed.toISOString().split('T')[0];
+          } else if (pattern.source.includes('end')) {
+            dates.endDate = parsed.toISOString().split('T')[0];
+          }
+        }
+      } catch {}
+    }
+  }
+  return dates;
+}
+
+function extractPrizeOrStipend(text, type) {
+  const result = { prize: '', stipend: '' };
+  
+  // Prize patterns (for hackathons)
+  const prizePatterns = [
+    /(?:prize|reward|win)[:\s]*(?:₹|rs\.?|inr)?\s*([\d,]+(?:\s*(?:lakh|lac|k|cr|crore))?)/gi,
+    /(?:₹|rs\.?|inr)\s*([\d,]+(?:\s*(?:lakh|lac|k|cr|crore))?)\s*(?:prize|reward|worth)/gi,
+    /prize\s*(?:pool|money)?[:\s]*(?:₹|rs\.?|inr|\$)?\s*([\d,]+)/gi,
+    /worth\s*(?:₹|rs\.?|inr|\$)?\s*([\d,]+)/gi,
+  ];
+
+  // Stipend patterns (for internships)
+  const stipendPatterns = [
+    /(?:stipend|salary|compensation|ctc)[:\s]*(?:₹|rs\.?|inr)?\s*([\d,]+)/gi,
+    /(?:₹|rs\.?|inr)\s*([\d,]+)\s*(?:per month|\/month|pm|stipend)/gi,
+    /([\d,]+)\s*(?:per month|\/month|pm)/gi,
+  ];
+
+  if (type === 'hackathon') {
+    for (const pattern of prizePatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        result.prize = formatPrize(match[1]);
+        break;
+      }
+    }
+  } else {
+    for (const pattern of stipendPatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        result.stipend = match[1].replace(/,/g, '');
+        break;
+      }
+    }
+  }
+  
+  return result;
+}
+
+function formatPrize(amount) {
+  const num = parseInt(amount.replace(/,/g, ''));
+  if (amount.toLowerCase().includes('lakh') || amount.toLowerCase().includes('lac')) {
+    return `₹${num} Lakh`;
+  } else if (amount.toLowerCase().includes('cr')) {
+    return `₹${num} Crore`;
+  } else if (num >= 100000) {
+    return `₹${(num/100000).toFixed(1)} Lakh`;
+  } else if (num >= 1000) {
+    return `₹${num.toLocaleString()}`;
+  }
+  return `₹${amount}`;
+}
+
+function extractLocation(text, $) {
+  const locationPatterns = [
+    /(?:location|venue|place)[:\s]*([\w\s,]+(?:india|usa|remote|online|bangalore|mumbai|delhi|hyderabad|chennai|pune|kolkata|noida|gurgaon|gurugram))/gi,
+    /(?:bangalore|mumbai|delhi|hyderabad|chennai|pune|kolkata|noida|gurgaon|gurugram|remote|online|work from home)/gi,
+  ];
+  
+  for (const pattern of locationPatterns) {
+    const match = pattern.exec(text);
+    if (match) {
+      return match[1] ? match[1].trim() : match[0].trim();
+    }
+  }
+  
+  // Check meta tags
+  const geoLocation = $('meta[name="geo.placename"]').attr('content');
+  if (geoLocation) return geoLocation;
+  
+  return 'Remote';
+}
+
+function extractMode(text) {
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes('hybrid')) return 'Hybrid';
+  if (lowerText.includes('offline') || lowerText.includes('on-site') || lowerText.includes('in-person')) return 'Offline';
+  if (lowerText.includes('online') || lowerText.includes('virtual') || lowerText.includes('remote')) return 'Online';
+  return 'Online';
+}
+
+function extractTags(text, $) {
+  const commonTags = ['AI', 'ML', 'Web Development', 'Mobile', 'Blockchain', 'IoT', 'Cloud', 'Cybersecurity', 'Data Science', 'Open Source', 'Fintech', 'Healthcare', 'EdTech', 'Gaming'];
+  const foundTags = [];
+  const lowerText = text.toLowerCase();
+  
+  for (const tag of commonTags) {
+    if (lowerText.includes(tag.toLowerCase())) {
+      foundTags.push(tag);
+    }
+  }
+  
+  // Also check keywords meta
+  const keywords = $('meta[name="keywords"]').attr('content');
+  if (keywords) {
+    const keywordTags = keywords.split(',').slice(0, 3).map(k => k.trim());
+    foundTags.push(...keywordTags);
+  }
+  
+  return foundTags.slice(0, 5).join(', ') || 'Technology, Innovation';
+}
+
+function extractBranches(text) {
+  const branches = [];
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('computer') || lowerText.includes('cse') || lowerText.includes('software')) {
+    branches.push('Computer Science');
+  }
+  if (lowerText.includes('information technology') || lowerText.includes(' it ')) {
+    branches.push('Information Technology');
+  }
+  if (lowerText.includes('electronics') || lowerText.includes('ece') || lowerText.includes('electrical')) {
+    branches.push('Electronics');
+  }
+  if (lowerText.includes('mechanical')) {
+    branches.push('Mechanical');
+  }
+  if (lowerText.includes('all branch') || lowerText.includes('any branch') || lowerText.includes('all stream')) {
+    return 'All Branches';
+  }
+  
+  return branches.length > 0 ? branches.join(', ') : 'Computer Science, Information Technology';
+}
+
+function extractRounds(text) {
+  const rounds = [];
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('online test') || lowerText.includes('aptitude') || lowerText.includes('assessment')) {
+    rounds.push('Online Assessment');
+  }
+  if (lowerText.includes('coding') || lowerText.includes('technical test')) {
+    rounds.push('Coding Round');
+  }
+  if (lowerText.includes('technical interview') || lowerText.includes('tech round')) {
+    rounds.push('Technical Interview');
+  }
+  if (lowerText.includes('hr interview') || lowerText.includes('hr round')) {
+    rounds.push('HR Interview');
+  }
+  if (lowerText.includes('group discussion') || lowerText.includes('gd')) {
+    rounds.push('Group Discussion');
+  }
+  
+  return rounds.length > 0 ? rounds.join(', ') : 'Online Assessment, Technical Interview, HR Interview';
+}
+
+function cleanTitle(title) {
+  return title
+    .replace(/\s*[-|]\s*.*$/, '') // Remove site name suffix
+    .replace(/\s+/g, ' ')
+    .trim()
+    .substring(0, 100);
+}
+
+function generateFutureDate(daysFromNow) {
+  const date = new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000);
+  return date.toISOString().split('T')[0];
+}
 
 app.get('/', (req, res) => {
   res.send('API is running...');

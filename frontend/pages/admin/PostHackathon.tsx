@@ -94,141 +94,60 @@ export const PostHackathon: React.FC = () => {
       return;
     }
 
+    // Validate URL format
+    try {
+      new URL(urlInput.trim());
+    } catch {
+      setFetchError('Please enter a valid URL (e.g., https://example.com/hackathon)');
+      return;
+    }
+
     setFetchLoading(true);
     setFetchError('');
     setFetchSuccess(false);
 
     try {
-      // Simulate fetching data from URL
-      // In production, this would call a backend API that scrapes the hackathon page
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call backend scraping API
+      const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000/api' 
+        : 'https://placement-portal-1ca3.onrender.com/api';
+      
+      const response = await fetch(`${API_URL}/scrape`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: urlInput.trim(), type: 'hackathon' }),
+      });
 
-      // Helper function to generate dynamic dates
-      const generateDates = () => {
-        const now = new Date();
-        const deadline = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
-        const startDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
-        const endDate = new Date(now.getTime() + 16 * 24 * 60 * 60 * 1000); // 16 days from now
-        
-        return {
-          deadline: deadline.toISOString().split('T')[0],
-          startDate: startDate.toISOString().split('T')[0],
-          endDate: endDate.toISOString().split('T')[0]
-        };
-      };
-
-      // Mock data based on URL patterns with live dates
-      let fetchedData: Partial<HackathonFormData> = {};
-      const dates = generateDates();
-
-      if (urlInput.includes('unstop') || urlInput.includes('dare2compete')) {
-        fetchedData = {
-          title: 'Unstop Hackathon Challenge',
-          organizer: 'Unstop',
-          description: 'Join this exciting hackathon challenge on Unstop platform. Build innovative solutions and compete with the best minds.',
-          prize: '₹5,00,000',
-          mode: 'Online',
-          difficulty: 'Intermediate',
-          tags: 'Innovation, Technology, Problem Solving',
-          registrationUrl: urlInput,
-          deadline: dates.deadline,
-          startDate: dates.startDate,
-          endDate: dates.endDate
-        };
-      } else if (urlInput.includes('devfolio')) {
-        const devfolioDates = {
-          deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          startDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        };
-        fetchedData = {
-          title: 'Devfolio Hackathon',
-          organizer: 'Devfolio',
-          description: 'A premier hackathon hosted on Devfolio. Build, ship, and win amazing prizes!',
-          prize: '₹3,00,000',
-          mode: 'Hybrid',
-          difficulty: 'Intermediate',
-          tags: 'Web3, Blockchain, Open Source',
-          registrationUrl: urlInput,
-          deadline: devfolioDates.deadline,
-          startDate: devfolioDates.startDate,
-          endDate: devfolioDates.endDate
-        };
-      } else if (urlInput.includes('hackerearth')) {
-        const heDates = {
-          deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          startDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        };
-        fetchedData = {
-          title: 'HackerEarth Challenge',
-          organizer: 'HackerEarth',
-          description: 'Participate in this competitive programming and hackathon challenge on HackerEarth.',
-          prize: '₹2,00,000',
-          mode: 'Online',
-          difficulty: 'Advanced',
-          tags: 'Competitive Programming, Algorithms, DSA',
-          registrationUrl: urlInput,
-          deadline: heDates.deadline,
-          startDate: heDates.startDate,
-          endDate: heDates.endDate
-        };
-      } else if (urlInput.includes('mlh') || urlInput.includes('majorleaguehacking')) {
-        const mlhDates = {
-          deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          startDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 23 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        };
-        fetchedData = {
-          title: 'MLH Hackathon',
-          organizer: 'Major League Hacking',
-          description: 'Official MLH hackathon event. Learn, build, and share with the global hacker community.',
-          prize: 'Swag + Certificates',
-          mode: 'Hybrid',
-          difficulty: 'Beginner',
-          tags: 'Learning, Community, Beginner Friendly',
-          registrationUrl: urlInput,
-          deadline: mlhDates.deadline,
-          startDate: mlhDates.startDate,
-          endDate: mlhDates.endDate
-        };
-      } else if (urlInput.includes('devpost')) {
-        const devpostDates = {
-          deadline: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          startDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          endDate: new Date(Date.now() + 17 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        };
-        fetchedData = {
-          title: 'Devpost Virtual Hackathon',
-          organizer: 'Devpost',
-          description: 'Participate in this global virtual hackathon. Build projects, win prizes, and connect with sponsors.',
-          prize: '$10,000',
-          mode: 'Online',
-          difficulty: 'Intermediate',
-          tags: 'Virtual, Global, Innovation',
-          registrationUrl: urlInput,
-          deadline: devpostDates.deadline,
-          startDate: devpostDates.startDate,
-          endDate: devpostDates.endDate
-        };
-      } else {
-        // Generic fetch for unknown URLs
-        fetchedData = {
-          title: 'Hackathon Event',
-          organizer: 'Organization',
-          description: 'Details fetched from the provided URL. Please verify and update the information.',
-          registrationUrl: urlInput,
-          deadline: dates.deadline,
-          startDate: dates.startDate,
-          endDate: dates.endDate
-        };
+      if (!response.ok) {
+        throw new Error('Failed to fetch data from URL');
       }
+
+      const data = await response.json();
+
+      // Map scraped data to form fields
+      const fetchedData: Partial<HackathonFormData> = {
+        title: data.title || 'Hackathon Event',
+        organizer: data.organizer || 'Organization',
+        description: data.description || 'Details fetched from the provided URL. Please verify and update the information.',
+        prize: data.prize || '₹1,00,000',
+        mode: data.mode || 'Online',
+        difficulty: data.difficulty || 'Intermediate',
+        tags: data.tags || 'Technology, Innovation',
+        location: data.location || '',
+        registrationUrl: urlInput.trim(),
+        deadline: data.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate: data.startDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        endDate: data.endDate || new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      };
 
       setFormData(prev => ({ ...prev, ...fetchedData }));
       setFetchSuccess(true);
       setInputMode('manual'); // Switch to manual to show and edit the fetched data
 
     } catch (error) {
+      console.error('Fetch error:', error);
       setFetchError('Failed to fetch data from URL. Please try again or enter details manually.');
     } finally {
       setFetchLoading(false);
