@@ -142,12 +142,16 @@ export const Api = {
         body: JSON.stringify({ credential }),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
+        console.error('Google login failed:', data.message);
         return null;
       }
 
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       return data;
     } catch (error) {
       console.error('Google login error:', error);
