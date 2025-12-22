@@ -1,0 +1,103 @@
+Server running on port 5000
+MongoDB Connected
+Scraping URL: https://unstop.com/internships/marketing-management-intern-alight-solutions-1543048, Type: internship
+Detected site: unstop
+Attempting AI-powered extraction...
+Calling OpenRouter AI for extraction...
+Raw AI response: ```json
+{
+  "title": "Scan the Market: Refex MedTech Hiring Challenge",
+  "company": "Refex Group",
+  "location": "Online",
+  "stipend": "Not Disclosed",
+  "duration": "Not Disclosed",
+  "deadline": "2025-08-29",
+  "startDate": "2025-08-28",
+  "description": "Refex Group has emerged as one of India’s fastest growing conglomerates, driving innovation and sustainability across sectors that power the nation’s growth. Refex MedTech is redefining India’s diagnostic imaging with innovation, affordabil
+AI extracted data: {
+  title: 'Scan the Market: Refex MedTech Hiring Challenge',
+  company: 'Refex Group',
+  location: 'Online',
+  stipend: 'Not Disclosed',
+  duration: 'Not Disclosed',
+  deadline: '2025-08-29',
+  startDate: '2025-08-28',
+  description: 'Refex Group has emerged as one of India’s fastest growing conglomerates, driving innovation and sustainability across sectors that power the nation’s growth. Refex MedTech is redefining India’s diagnostic imaging with innovation, affordability, and indigenous manufacturing. The competition will only include 1 round and will be a case study presentation round.',
+  skills: 'Market Assessment, Segmentation & Buying Behaviour, Price Sensitivity, Market Expansion',
+  eligibility: 'Engineering Students, MBA Students, Undergraduate, Postgraduate',
+  openings: 'Not Disclosed',
+  perks: 'MacBook, iPhone, Apple Watch, Cash and more!'
+}
+Scraping successful: Scan the Market: Refex MedTech Hiring Challenge
+Scraping URL: https://unstop.com/hackathons/hack-odisha-50-hack-odisha-1379108, Type: hackathon
+Detected site: unstop
+Attempting AI-powered extraction...
+Calling OpenRouter AI for extraction...
+Raw AI response: ```json
+{
+  "title": "Hack Odisha",
+  "organizer": "Not Disclosed",
+  "prize": "Not Disclosed",
+  "registrationDeadline": "Not Disclosed",
+  "startDate": "Not Disclosed",
+  "endDate": "Not Disclosed",
+  "mode": "Not Disclosed",
+  "location": "Not Disclosed",
+  "description": "Not Disclosed",
+  "themes": "Not Disclosed",
+  "eligibility": "Not Disclosed",
+  "teamSize": "Not Disclosed",
+  "stages": "Not Disclosed"
+}
+```
+AI extracted data: {
+  title: 'Hack Odisha',
+  organizer: 'Not Disclosed',
+  prize: 'Not Disclosed',
+  registrationDeadline: 'Not Disclosed',
+  startDate: 'Not Disclosed',
+  endDate: 'Not Disclosed',
+  mode: 'Not Disclosed',
+  location: 'Not Disclosed',
+  description: 'Not Disclosed',
+  themes: 'Not Disclosed',
+  eligibility: 'Not Disclosed',
+  teamSize: 'Not Disclosed',
+  stages: 'Not Disclosed'
+}
+Scraping successful: Hack Odisha
+Scraping URL: https://internshala.com/internship/detail/web-development-internship-in-work-from-home1735222666, Type: internship
+Detected site: internshala
+Attempting AI-powered extraction...
+Calling OpenRouter AI for extraction...
+Raw AI response: ```json
+{
+  "title": "Web Development Internship",
+  "company": "Not Disclosed",
+  "location": "Work From Home",
+  "stipend": "Not Disclosed",
+  "duration": "Not Disclosed",
+  "deadline": "Not Disclosed",
+  "startDate": "Not Disclosed",
+  "description": "Not Disclosed",
+  "skills": "Not Disclosed",
+  "eligibility": "Not Disclosed",
+  "openings": "Not Disclosed",
+  "perks": "Not Disclosed"
+}
+```
+AI extracted data: {
+  title: 'Web Development Internship',
+  company: 'Not Disclosed',
+  location: 'Work From Home',
+  stipend: 'Not Disclosed',
+  duration: 'Not Disclosed',
+  deadline: 'Not Disclosed',
+  startDate: 'Not Disclosed',
+  description: 'Not Disclosed',
+  skills: 'Not Disclosed',
+  eligibility: 'Not Disclosed',
+  openings: 'Not Disclosed',
+  perks: 'Not Disclosed'
+}
+Scraping successful: Web Development Internship

@@ -107,39 +107,53 @@ export const PostHackathon: React.FC = () => {
     setFetchSuccess(false);
 
     try {
-      // Call backend scraping API
+      // Call backend hackathon extraction API (uses ScraperAPI + OpenRouter)
       const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
+        ? 'http://localhost:5001/api' 
         : 'https://placement-portal-1ca3.onrender.com/api';
       
-      const response = await fetch(`${API_URL}/scrape`, {
+      const response = await fetch(`${API_URL}/extract-hackathon`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: urlInput.trim(), type: 'hackathon' }),
+        body: JSON.stringify({ url: urlInput.trim() }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch data from URL');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch data from URL');
       }
 
       const data = await response.json();
+      console.log('Extracted hackathon data:', data);
 
-      // Map scraped data to form fields
+      // Parse deadline - convert to YYYY-MM-DD format
+      const parseDate = (dateStr: string): string => {
+        if (!dateStr || dateStr === 'Not mentioned') {
+          return '';
+        }
+        const parsedDate = new Date(dateStr);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString().split('T')[0];
+        }
+        return '';
+      };
+
+      // Map extracted data to form fields
       const fetchedData: Partial<HackathonFormData> = {
-        title: data.title || 'Hackathon Event',
-        organizer: data.organizer || 'Organization',
-        description: data.description || 'Details fetched from the provided URL. Please verify and update the information.',
-        prize: data.prize || '₹1,00,000',
-        mode: data.mode || 'Online',
-        difficulty: data.difficulty || 'Intermediate',
-        tags: data.tags || 'Technology, Innovation',
-        location: data.location || '',
+        title: data.title !== 'Not mentioned' ? data.title : 'Hackathon Event',
+        organizer: data.organizer !== 'Not mentioned' ? data.organizer : 'Organization',
+        description: data.description !== 'Not mentioned' ? data.description : 'Details fetched from the provided URL. Please verify and update the information.',
+        prize: data.prize !== 'Not mentioned' ? data.prize : '₹1,00,000',
+        mode: (data.mode === 'Online' || data.mode === 'Offline' || data.mode === 'Hybrid') ? data.mode : 'Online',
+        difficulty: (data.difficulty === 'Beginner' || data.difficulty === 'Intermediate' || data.difficulty === 'Advanced') ? data.difficulty : 'Intermediate',
+        tags: data.tags !== 'Not mentioned' ? data.tags : 'Technology, Innovation',
+        location: data.location !== 'Not mentioned' ? data.location : '',
         registrationUrl: urlInput.trim(),
-        deadline: data.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        startDate: data.startDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: data.endDate || new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        deadline: parseDate(data.deadline) || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate: parseDate(data.startDate) || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        endDate: parseDate(data.endDate) || new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       };
 
       setFormData(prev => ({ ...prev, ...fetchedData }));
@@ -148,7 +162,7 @@ export const PostHackathon: React.FC = () => {
 
     } catch (error) {
       console.error('Fetch error:', error);
-      setFetchError('Failed to fetch data from URL. Please try again or enter details manually.');
+      setFetchError(error instanceof Error ? error.message : 'Failed to fetch data from URL. Please try again or enter details manually.');
     } finally {
       setFetchLoading(false);
     }

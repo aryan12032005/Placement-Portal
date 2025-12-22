@@ -94,36 +94,60 @@ export const PostJob: React.FC = () => {
     setFetchSuccess(false);
 
     try {
-      // Call backend scraping API
+      // Call backend internship extraction API
       const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:5000/api' 
+        ? 'http://localhost:5001/api' 
         : 'https://placement-portal-1ca3.onrender.com/api';
       
-      const response = await fetch(`${API_URL}/scrape`, {
+      const response = await fetch(`${API_URL}/extract-internship`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: urlInput.trim(), type: 'internship' }),
+        body: JSON.stringify({ url: urlInput.trim() }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch data from URL');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch data from URL');
       }
 
       const data = await response.json();
+      console.log('Extracted internship data:', data);
 
-      // Map scraped data to form fields
+      // Parse stipend - extract numeric value
+      let stipendValue = '15000';
+      if (data.stipend && data.stipend !== 'Not mentioned') {
+        // Extract numbers from stipend string like "₹15,000/month" or "15000"
+        const stipendMatch = data.stipend.replace(/,/g, '').match(/(\d+)/);
+        if (stipendMatch) {
+          stipendValue = stipendMatch[1];
+        }
+      }
+
+      // Parse deadline - convert to YYYY-MM-DD format
+      let deadlineValue = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      if (data.deadline && data.deadline !== 'Not mentioned') {
+        // Try to parse the deadline date
+        const parsedDate = new Date(data.deadline);
+        if (!isNaN(parsedDate.getTime())) {
+          deadlineValue = parsedDate.toISOString().split('T')[0];
+        }
+      }
+
+      // Map extracted data to form fields
       const fetchedData = {
-        title: data.title || 'Internship Opportunity',
-        description: data.description || 'Details fetched from the provided URL. Please verify and update the information.',
-        package: data.package || '15000',
-        location: data.location || 'Remote',
+        title: data.title !== 'Not mentioned' ? data.title : 'Internship Opportunity',
+        description: data.eligibility !== 'Not mentioned' 
+          ? `Eligibility: ${data.eligibility}` 
+          : 'Details fetched from the provided URL. Please verify and update the information.',
+        package: stipendValue,
+        location: data.location !== 'Not mentioned' ? data.location : 'Remote',
         type: JobType.INTERNSHIP,
-        minCGPA: data.minCGPA || 6.0,
-        branches: data.branches || 'Computer Science, Information Technology',
-        rounds: data.rounds || 'Online Assessment, Technical Interview, HR Interview',
-        deadline: data.deadline || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        minCGPA: 6.0,
+        branches: 'Computer Science, Information Technology',
+        rounds: 'Online Assessment, Technical Interview, HR Interview',
+        deadline: deadlineValue,
       };
 
       setFormData(prev => ({ ...prev, ...fetchedData, registrationUrl: urlInput.trim() }));
@@ -132,7 +156,7 @@ export const PostJob: React.FC = () => {
 
     } catch (error) {
       console.error('Fetch error:', error);
-      setFetchError('Failed to fetch data from URL. Please try again or enter details manually.');
+      setFetchError(error instanceof Error ? error.message : 'Failed to fetch data from URL. Please try again or enter details manually.');
     } finally {
       setFetchLoading(false);
     }

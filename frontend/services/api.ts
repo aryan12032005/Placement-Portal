@@ -81,8 +81,8 @@ initStorage();
 const getItems = <T>(key: string): T[] => JSON.parse(localStorage.getItem(key) || '[]');
 const setItems = <T>(key: string, items: T[]) => localStorage.setItem(key, JSON.stringify(items));
 
-// const API_URL = 'http://localhost:5000/api';
-const API_URL = 'https://placement-portal-1ca3.onrender.com/api';
+const API_URL = 'http://localhost:5001/api';
+// const API_URL = 'https://placement-portal-1ca3.onrender.com/api';
 export const Api = {
   // Auth & User
   login: async (email: string, password?: string): Promise<User | null> => {
@@ -413,5 +413,47 @@ export const Api = {
     const hackathons = getItems<any>(HACKATHONS_KEY);
     const filtered = hackathons.filter(h => h.id !== id);
     setItems(HACKATHONS_KEY, filtered);
+  },
+
+  // ============================================================
+  // INTERNSHIP EXTRACTION API
+  // ============================================================
+
+  /**
+   * Extract internship details from any public internship page URL
+   * @param url - Public URL of the internship page
+   * @returns Structured internship data
+   * 
+   * @example
+   * const data = await Api.extractInternship('https://internshala.com/internship/...');
+   * console.log(data);
+   * // { title: "Web Developer Intern", stipend: "₹15,000/month", deadline: "25 Dec 2025", location: "Remote", eligibility: "..." }
+   */
+  extractInternship: async (url: string): Promise<{
+    title: string;
+    stipend: string;
+    deadline: string;
+    location: string;
+    eligibility: string;
+  }> => {
+    try {
+      const response = await fetch(`${API_URL}/extract-internship`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error extracting internship:', error);
+      throw error;
+    }
   }
 };
