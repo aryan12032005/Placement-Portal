@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema({
   cgpa: Number,
   skills: [String],
   resumeUrl: String,
+  profilePicture: String,
   phone: String,
   linkedIn: String,
   // Company specific

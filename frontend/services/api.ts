@@ -183,6 +183,7 @@ export const Api = {
           cgpa: user.cgpa,
           skills: user.skills,
           resumeUrl: user.resumeUrl,
+          profilePicture: user.profilePicture,
         }),
       });
       if (!response.ok) {

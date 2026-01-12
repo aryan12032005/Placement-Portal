@@ -138,9 +138,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
           {/* User Info */}
           <div className={`flex items-center gap-3 px-4 py-3 mb-2 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
-            <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            {user.profilePicture ? (
+              <img src={user.profilePicture} alt="Profile" className="w-9 h-9 rounded-lg object-cover" />
+            ) : (
+              <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex-1 overflow-hidden">
               <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user.name}</p>
               <p className={`text-xs truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</p>

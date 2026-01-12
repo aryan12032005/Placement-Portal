@@ -456,6 +456,7 @@ app.post('/api/auth/login', async (req, res) => {
         cgpa: user.cgpa,
         skills: user.skills,
         resumeUrl: user.resumeUrl,
+        profilePicture: user.profilePicture,
         companyName: user.companyName,
         industry: user.industry,
         website: user.website,
@@ -587,6 +588,7 @@ app.put('/api/users/profile', protect, async (req, res) => {
       user.cgpa = req.body.cgpa !== undefined ? req.body.cgpa : user.cgpa;
       user.skills = req.body.skills || user.skills;
       user.resumeUrl = req.body.resumeUrl !== undefined ? req.body.resumeUrl : user.resumeUrl;
+      user.profilePicture = req.body.profilePicture !== undefined ? req.body.profilePicture : user.profilePicture;
 
       const updatedUser = await user.save();
       res.json({
@@ -606,6 +608,7 @@ app.put('/api/users/profile', protect, async (req, res) => {
         cgpa: updatedUser.cgpa,
         skills: updatedUser.skills,
         resumeUrl: updatedUser.resumeUrl,
+        profilePicture: updatedUser.profilePicture,
         companyName: updatedUser.companyName,
         industry: updatedUser.industry,
         website: updatedUser.website,
