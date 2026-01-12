@@ -3,7 +3,7 @@ import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Job, Application } from '../../types';
-import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket, Sparkles, ExternalLink } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Clock, CheckCircle, Search, Building2, Calendar, Timer, Rocket, Sparkles, ExternalLink, Zap, Target, TrendingUp } from 'lucide-react';
 
 export const StudentJobs: React.FC = () => {
   const { user } = useAuth();
@@ -95,12 +95,53 @@ export const StudentJobs: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Available Internships</h1>
-          <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>{internships.length} opportunities available</p>
+      {/* Dashboard Header */}
+      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-8 text-white shadow-xl">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="p-3 bg-white/20 backdrop-blur rounded-xl">
+            <Briefcase size={32} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Internships</h1>
+            <p className="text-white/80">Discover and apply to exciting internship opportunities</p>
+          </div>
         </div>
+        
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+            <div className="flex items-center gap-2">
+              <Zap size={20} className="text-yellow-300" />
+              <span className="text-2xl font-bold">{internships.length}</span>
+            </div>
+            <p className="text-sm text-white/70">Available</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle size={20} className="text-green-300" />
+              <span className="text-2xl font-bold">{myApps.length}</span>
+            </div>
+            <p className="text-sm text-white/70">Applied</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+            <div className="flex items-center gap-2">
+              <Target size={20} className="text-blue-300" />
+              <span className="text-2xl font-bold">{internships.filter(j => checkEligibility(j).eligible).length}</span>
+            </div>
+            <p className="text-sm text-white/70">Eligible</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp size={20} className="text-pink-300" />
+              <span className="text-2xl font-bold">{internships.filter(j => isRecentlyPosted(j.postedDate || new Date().toISOString())).length}</span>
+            </div>
+            <p className="text-sm text-white/70">New This Week</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Search & Filters */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex gap-3 flex-wrap">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />

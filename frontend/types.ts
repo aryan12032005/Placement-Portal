@@ -21,6 +21,7 @@ export interface User {
   cgpa?: number;
   skills?: string[];
   resumeUrl?: string;
+  profilePicture?: string;
   phone?: string;
   linkedIn?: string;
 

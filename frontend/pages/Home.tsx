@@ -769,35 +769,27 @@ export const Home: React.FC = () => {
             </p>
           </div>
 
-          {/* Process Flow Diagram - Enhanced */}
+          {/* Process Flow Diagram */}
           <div className="relative max-w-5xl mx-auto mb-16">
-            {/* Animated connecting line */}
+            {/* Connecting line */}
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 z-0 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-violet-400 via-blue-400 via-emerald-400 to-amber-400 animate-progressLine"></div>
+              <div className="h-full bg-slate-300"></div>
             </div>
             
             <div className="grid md:grid-cols-4 gap-8 relative z-10">
               {steps.map((item, i) => (
                 <div key={i} className="relative group">
                   <div 
-                    className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-100 group-hover:border-violet-200 group-hover:-translate-y-4"
+                    className="bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 border border-slate-200 group-hover:border-slate-300 group-hover:-translate-y-4"
                     style={{ animationDelay: `${i * 200}ms` }}
                   >
-                    {/* Animated background on hover */}
-                    <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${
-                      item.color === 'violet' ? 'from-violet-50 to-violet-100' :
-                      item.color === 'blue' ? 'from-blue-50 to-blue-100' :
-                      item.color === 'emerald' ? 'from-emerald-50 to-emerald-100' :
-                      'from-amber-50 to-amber-100'
-                    } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                    
                     <div className="relative z-10">
-                      <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${
-                        item.color === 'violet' ? 'from-violet-500 to-violet-600' :
-                        item.color === 'blue' ? 'from-blue-500 to-blue-600' :
-                        item.color === 'emerald' ? 'from-emerald-500 to-emerald-600' :
-                        'from-amber-500 to-amber-600'
-                      } flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300`}>
+                      <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl ${
+                        item.color === 'violet' ? 'bg-violet-500' :
+                        item.color === 'blue' ? 'bg-blue-500' :
+                        item.color === 'emerald' ? 'bg-emerald-500' :
+                        'bg-amber-500'
+                      } flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-all duration-300`}>
                         <item.icon size={28} />
                       </div>
                       <div className="text-center">
@@ -811,22 +803,14 @@ export const Home: React.FC = () => {
                         <p className="text-sm text-slate-600">{item.description}</p>
                       </div>
                     </div>
-                    
-                    {/* Animated pulse ring */}
-                    <div className={`absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity ${
-                      item.color === 'violet' ? 'bg-violet-400' :
-                      item.color === 'blue' ? 'bg-blue-400' :
-                      item.color === 'emerald' ? 'bg-emerald-400' :
-                      'bg-amber-400'
-                    } blur-xl -z-10`}></div>
                   </div>
                   
-                  {/* Step Number - Enhanced */}
-                  <div className={`absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg z-20 transition-all duration-300 group-hover:scale-125 group-hover:rotate-12 ${
-                    item.color === 'violet' ? 'bg-gradient-to-br from-violet-500 to-violet-700' :
-                    item.color === 'blue' ? 'bg-gradient-to-br from-blue-500 to-blue-700' :
-                    item.color === 'emerald' ? 'bg-gradient-to-br from-emerald-500 to-emerald-700' :
-                    'bg-gradient-to-br from-amber-500 to-amber-700'
+                  {/* Step Number */}
+                  <div className={`absolute -top-4 -right-4 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg z-20 transition-all duration-300 group-hover:scale-110 ${
+                    item.color === 'violet' ? 'bg-violet-500' :
+                    item.color === 'blue' ? 'bg-blue-500' :
+                    item.color === 'emerald' ? 'bg-emerald-500' :
+                    'bg-amber-500'
                   }`}>
                     {i + 1}
                   </div>
@@ -834,7 +818,7 @@ export const Home: React.FC = () => {
                   {/* Arrow connector for desktop */}
                   {i < steps.length - 1 && (
                     <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-8 -translate-y-1/2 z-20">
-                      <ArrowRight className="text-slate-300 group-hover:text-violet-400 transition-colors" size={24} />
+                      <ArrowRight className="text-slate-300" size={24} />
                     </div>
                   )}
                 </div>

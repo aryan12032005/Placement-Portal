@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Api } from '../../services/api';
-import { uploadResume, deleteResume } from '../../services/supabase';
-import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2, Loader2, X } from 'lucide-react';
+import { uploadResume, deleteResume, uploadProfilePicture, deleteProfilePicture } from '../../services/supabase';
+import { Upload, FileText, Save, User as UserIcon, GraduationCap, Mail, Phone, Linkedin, Edit2, Loader2, X, Camera } from 'lucide-react';
 
 export const StudentProfile: React.FC = () => {
   const { user, login } = useAuth();
   const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingPicture, setUploadingPicture] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -22,7 +23,8 @@ export const StudentProfile: React.FC = () => {
     educationStatus: (user?.educationStatus || 'Pursuing') as 'Pursuing' | 'Graduated' | 'Undergraduate',
     cgpa: user?.cgpa || 0,
     skills: user?.skills?.join(', ') || '',
-    resumeUrl: user?.resumeUrl || ''
+    resumeUrl: user?.resumeUrl || '',
+    profilePicture: user?.profilePicture || ''
   });
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -42,7 +44,8 @@ export const StudentProfile: React.FC = () => {
       educationStatus: formData.educationStatus as 'Pursuing' | 'Graduated' | 'Undergraduate',
       cgpa: Number(formData.cgpa),
       skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
-      resumeUrl: formData.resumeUrl
+      resumeUrl: formData.resumeUrl,
+      profilePicture: formData.profilePicture
     };
 
     await Api.updateUser(updatedUser);
@@ -81,6 +84,60 @@ export const StudentProfile: React.FC = () => {
     }
   };
 
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && user) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) { 
+        alert('Please upload an image file (JPEG, PNG, GIF, or WebP)'); 
+        return; 
+      }
+      if (file.size > 2 * 1024 * 1024) { 
+        alert('File size should be less than 2MB'); 
+        return; 
+      }
+
+      setUploadingPicture(true);
+      try {
+        // Delete old picture if exists
+        if (formData.profilePicture) {
+          await deleteProfilePicture(formData.profilePicture);
+        }
+        
+        const pictureUrl = await uploadProfilePicture(file, user.id);
+        if (pictureUrl) {
+          setFormData({ ...formData, profilePicture: pictureUrl });
+          
+          // Auto-save the profile picture
+          const updatedUser = { ...user, profilePicture: pictureUrl };
+          await Api.updateUser(updatedUser);
+          login(updatedUser);
+          
+          alert('Profile picture uploaded successfully!');
+        } else {
+          alert('Failed to upload profile picture. Check browser console for details.');
+        }
+      } catch (error: any) {
+        console.error('Profile picture upload error:', error);
+        alert(`Failed to upload profile picture: ${error?.message || 'Unknown error'}`);
+      } finally {
+        setUploadingPicture(false);
+      }
+    }
+  };
+
+  const handleRemoveProfilePicture = async () => {
+    if (formData.profilePicture && user) {
+      await deleteProfilePicture(formData.profilePicture);
+      setFormData({ ...formData, profilePicture: '' });
+      
+      // Auto-save the removal
+      const updatedUser = { ...user, profilePicture: '' };
+      await Api.updateUser(updatedUser);
+      login(updatedUser);
+    }
+  };
+
   const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border`;
   const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`;
   const inputClass = `w-full px-4 py-2.5 rounded-lg border outline-none transition-all ${
@@ -96,8 +153,44 @@ export const StudentProfile: React.FC = () => {
       <div className={`${cardClass} p-6`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
-              {formData.name.charAt(0).toUpperCase()}
+            {/* Profile Picture with Upload */}
+            <div className="relative group">
+              {formData.profilePicture ? (
+                <img 
+                  src={formData.profilePicture} 
+                  alt="Profile" 
+                  className="w-16 h-16 rounded-xl object-cover"
+                />
+              ) : (
+                <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                  {formData.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              {/* Upload overlay */}
+              <label className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                {uploadingPicture ? (
+                  <Loader2 size={20} className="text-white animate-spin" />
+                ) : (
+                  <Camera size={20} className="text-white" />
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleProfilePictureUpload}
+                  className="hidden"
+                  disabled={uploadingPicture}
+                />
+              </label>
+              {/* Remove button */}
+              {formData.profilePicture && (
+                <button
+                  type="button"
+                  onClick={handleRemoveProfilePicture}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                >
+                  <X size={12} />
+                </button>
+              )}
             </div>
             <div>
               <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
