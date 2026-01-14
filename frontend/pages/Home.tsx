@@ -455,7 +455,7 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Content - Hero Visual with improved card */}
+            {/* Right Content - Hero Video */}
             <div 
               className={`relative transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} group`}
             >
@@ -463,96 +463,34 @@ export const Home: React.FC = () => {
                 {/* Enhanced Glow with animation */}
                 <div className="absolute -inset-6 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-[36px] opacity-20 blur-3xl group-hover:opacity-30 transition-opacity duration-500 animate-pulse-slow"></div>
                 
-                {/* Main Card with improved design */}
-                <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700/50 hover:border-slate-600 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-violet-600/20">
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
-                          <Briefcase className="text-white" size={28} />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-bold text-lg">SDE Intern</h3>
-                          <p className="text-slate-400 text-sm">Google India • Summer 2025</p>
-                        </div>
-                      </div>
-                      <span className="bg-emerald-500/30 text-emerald-300 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        New Opening
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 text-slate-300 text-sm">
-                        <span className="flex items-center gap-1.5 bg-slate-700/50 px-3 py-1.5 rounded-lg hover:bg-slate-700 transition-colors"><Globe size={14} /> Bangalore</span>
-                        <span className="flex items-center gap-1.5 bg-slate-700/50 px-3 py-1.5 rounded-lg hover:bg-slate-700 transition-colors"><Clock size={14} /> 6 Months</span>
-                        <span className="flex items-center gap-1.5 bg-emerald-500/20 px-3 py-1.5 rounded-lg text-emerald-300"><TrendingUp size={14} /> ₹80K/mo</span>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {['React', 'JavaScript', 'Python', 'Git', 'DSA'].map((skill, i) => (
-                          <span 
-                            key={skill} 
-                            className="bg-slate-700/80 text-slate-300 px-3 py-1.5 rounded-lg text-sm hover:bg-violet-600/40 hover:text-violet-200 hover:border-violet-500 transition-all cursor-pointer border border-slate-600/50 hover:border-violet-500/50"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/30">
-                        <div className="flex justify-between text-sm mb-3">
-                          <span className="text-slate-400">Applications</span>
-                          <span className="text-white font-bold">156 applied</span>
-                        </div>
-                        <div className="h-2.5 bg-slate-600/50 rounded-full overflow-hidden">
-                          <div className="h-full w-3/4 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full animate-pulse-slow"></div>
-                        </div>
-                      </div>
-                      
-                      <button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:shadow-violet-500/40 transition-all duration-300 hover:scale-[1.03] relative overflow-hidden group">
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          Apply Now
-                          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      </button>
+                {/* Video Container */}
+                <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 hover:border-violet-400 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-violet-600/20">
+                  <video 
+                    className="w-full h-auto" 
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline
+                    style={{ background: 'white' }}
+                  >
+                    <source src="/landing-video.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {/* White bars with text */}
+                  <div className="absolute top-0 left-0 bottom-0 w-[18%] bg-white z-10 flex flex-col items-center justify-center p-4">
+                    <div className="text-center">
+                      <span className="text-lg font-black text-violet-600 block mb-2">InternHub</span>
+                      <div className="w-8 h-0.5 bg-gradient-to-r from-violet-600 to-indigo-600 mx-auto mb-2"></div>
+                      <span className="text-xs font-bold text-slate-500 tracking-widest">Your Future</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Floating Cards with animation */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-lg p-4 border border-slate-200 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-float">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
-                      <CheckCircle className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm">Application Sent!</p>
-                      <p className="text-xs text-slate-500">Just now</p>
+                  <div className="absolute top-0 right-0 bottom-0 w-[18%] bg-white z-10 flex flex-col items-center justify-center p-4">
+                    <div className="text-center">
+                      <span className="text-lg font-black text-violet-600 block mb-2">Starts Here</span>
+                      <div className="w-8 h-0.5 bg-gradient-to-r from-indigo-600 to-violet-600 mx-auto mb-2"></div>
+                      <span className="text-xs font-bold text-slate-500 tracking-widest">Success</span>
                     </div>
                   </div>
-                </div>
-
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-lg p-4 border border-slate-200 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-float-delayed">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
-                      <Award className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm">You're Shortlisted!</p>
-                      <p className="text-xs text-slate-500">Microsoft India</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute top-1/2 -translate-y-1/2 -right-12 bg-white rounded-2xl shadow-lg p-3 border border-slate-200 hover:shadow-xl hover:scale-110 transition-all hidden lg:flex items-center gap-2 animate-pulse-slow">
-                  <div className="relative">
-                    <Bell className="text-violet-600" size={16} />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                  </div>
-                  <span className="text-xs font-bold text-slate-700">3 new</span>
                 </div>
               </div>
             </div>
