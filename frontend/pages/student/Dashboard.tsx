@@ -6,7 +6,7 @@ import { Application, Job } from '../../types';
 import { 
   Briefcase, CheckCircle, Clock, XCircle, TrendingUp, ArrowUpRight, Send,
   Rocket, Calendar, MapPin, Building2, Zap, Trophy, Code, Users, Star,
-  ExternalLink, Timer, IndianRupee
+  ExternalLink, Timer, IndianRupee, BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -155,7 +155,11 @@ export const StudentDashboard: React.FC = () => {
               </div>
             ) : (
               internships.map((internship) => (
-                <div key={internship.id} className={`p-4 ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'} transition-colors`}>
+                <Link 
+                  key={internship.id} 
+                  to="/student/internships"
+                  className={`block p-4 ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'} transition-colors cursor-pointer`}
+                >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                       {internship.companyName.charAt(0)}
@@ -180,7 +184,7 @@ export const StudentDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
@@ -199,7 +203,11 @@ export const StudentDashboard: React.FC = () => {
           </div>
           <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {hackathons.map((hackathon) => (
-              <div key={hackathon.id} className={`p-4 ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'} transition-colors`}>
+              <Link 
+                key={hackathon.id} 
+                to="/student/hackathons"
+                className={`block p-4 ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-50'} transition-colors cursor-pointer`}
+              >
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center text-white flex-shrink-0">
                     <Trophy size={18} />
@@ -238,7 +246,7 @@ export const StudentDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -333,6 +341,26 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Learning Hub Promo */}
+      <Link 
+        to="/student/courses"
+        className={`${isDark ? 'bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border-emerald-800 hover:from-emerald-900/70 hover:to-teal-900/70' : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700'} rounded-xl p-6 flex items-center justify-between group transition-all cursor-pointer`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+            <BookOpen className="text-white" size={24} />
+          </div>
+          <div className="text-white">
+            <h3 className="font-semibold text-lg">Learning Hub</h3>
+            <p className="text-emerald-100 text-sm">Access free courses, notes, and resources to boost your skills</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-white font-medium">
+          <span className="hidden sm:inline">Explore Courses</span>
+          <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+        </div>
+      </Link>
     </div>
   );
 };

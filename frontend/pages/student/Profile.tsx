@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Api } from '../../services/api';
@@ -51,26 +52,26 @@ export const StudentProfile: React.FC = () => {
     await Api.updateUser(updatedUser);
     login(updatedUser);
     setIsEditing(false);
-    alert('Profile updated successfully!');
+    toast.success('Profile updated successfully!');
   };
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && user) {
-      if (file.type !== 'application/pdf') { alert('Please upload a PDF file'); return; }
-      if (file.size > 5 * 1024 * 1024) { alert('File size should be less than 5MB'); return; }
+      if (file.type !== 'application/pdf') { toast.error('Please upload a PDF file'); return; }
+      if (file.size > 5 * 1024 * 1024) { toast.error('File size should be less than 5MB'); return; }
 
       setUploading(true);
       try {
         const resumeUrl = await uploadResume(file, user.id);
         if (resumeUrl) {
           setFormData({ ...formData, resumeUrl });
-          alert('Resume uploaded successfully!');
+          toast.success('Resume uploaded successfully!');
         } else {
-          alert('Failed to upload resume.');
+          toast.error('Failed to upload resume.');
         }
       } catch (error) {
-        alert('Failed to upload resume');
+        toast.error('Failed to upload resume');
       } finally {
         setUploading(false);
       }
@@ -89,11 +90,11 @@ export const StudentProfile: React.FC = () => {
     if (file && user) {
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) { 
-        alert('Please upload an image file (JPEG, PNG, GIF, or WebP)'); 
+        toast.error('Please upload an image file (JPEG, PNG, GIF, or WebP)'); 
         return; 
       }
       if (file.size > 2 * 1024 * 1024) { 
-        alert('File size should be less than 2MB'); 
+        toast.error('File size should be less than 2MB'); 
         return; 
       }
 
@@ -113,13 +114,13 @@ export const StudentProfile: React.FC = () => {
           await Api.updateUser(updatedUser);
           login(updatedUser);
           
-          alert('Profile picture uploaded successfully!');
+          toast.success('Profile picture uploaded successfully!');
         } else {
-          alert('Failed to upload profile picture. Check browser console for details.');
+          toast.error('Failed to upload profile picture. Check browser console for details.');
         }
       } catch (error: any) {
         console.error('Profile picture upload error:', error);
-        alert(`Failed to upload profile picture: ${error?.message || 'Unknown error'}`);
+        toast.error(`Failed to upload profile picture: ${error?.message || 'Unknown error'}`);
       } finally {
         setUploadingPicture(false);
       }

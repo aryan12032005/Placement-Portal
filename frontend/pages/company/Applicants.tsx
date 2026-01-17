@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Application, ApplicationStatus, Job, User } from '../../types';
 import { Download, Check, X, Eye, GraduationCap, Mail, Phone, Award, FileText, Linkedin, Trash2 } from 'lucide-react';
+import { ConfirmDialog, useConfirmDialog } from '../../components/ConfirmDialog';
 
 export const Applicants: React.FC = () => {
   const { user } = useAuth();
   const { isDark } = useTheme();
+  const { confirm, dialogProps } = useConfirmDialog();
   const [applications, setApplications] = useState<Application[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -47,15 +50,21 @@ export const Applicants: React.FC = () => {
   };
 
   const handleDeleteApplication = async (appId: string, studentName: string) => {
-    if (!window.confirm(`Are you sure you want to delete the application from "${studentName}"?`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Delete Application',
+      message: `Are you sure you want to delete the application from "${studentName}"?`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+    
     setDeleting(appId);
     try {
       await Api.deleteApplication(appId);
       setApplications(prev => prev.filter(a => a.id !== appId));
+      toast.success('Application deleted successfully!');
     } catch (error) {
-      alert('Failed to delete application');
+      toast.error('Failed to delete application');
     }
     setDeleting(null);
   };
@@ -81,6 +90,8 @@ export const Applicants: React.FC = () => {
     : applications.filter(a => a.jobId === filterJob);
 
   return (
+    <>
+    <ConfirmDialog {...dialogProps} />
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-indigo-600 rounded-xl p-6 text-white shadow-lg">
@@ -346,5 +357,6 @@ export const Applicants: React.FC = () => {
         </div>
       )}
     </div>
+    </>
   );
 };

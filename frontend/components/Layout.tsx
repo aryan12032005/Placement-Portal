@@ -19,8 +19,13 @@ import {
   Plus,
   FileText,
   Rocket,
-  Trophy
+  Trophy,
+  BookOpen,
+  Bell,
+  MessageCircle
 } from 'lucide-react';
+import { NotificationDropdown } from './NotificationDropdown';
+import { SupportChat } from './SupportChat';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -43,6 +48,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           { icon: LayoutDashboard, label: 'Dashboard', path: '/student/dashboard' },
           { icon: Rocket, label: 'Internships', path: '/student/internships' },
           { icon: Trophy, label: 'Hackathons', path: '/student/hackathons' },
+          { icon: BookOpen, label: 'Courses', path: '/student/courses' },
           { icon: UserCircle, label: 'Profile', path: '/student/profile' },
         ];
       case UserRole.ADMIN:
@@ -53,6 +59,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           { icon: FileText, label: 'Applicants', path: '/admin/applicants' },
           { icon: Users, label: 'Users', path: '/admin/users' },
           { icon: BarChart3, label: 'Stats', path: '/admin/stats' },
+          { icon: BookOpen, label: 'Courses', path: '/admin/courses' },
+          { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
         ];
       default:
         return [];
@@ -199,6 +207,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            {/* Notification & Support - Only for Students */}
+            {user.role === UserRole.STUDENT && (
+              <>
+                <NotificationDropdown />
+                <SupportChat />
+              </>
+            )}
+            
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg transition-all ${

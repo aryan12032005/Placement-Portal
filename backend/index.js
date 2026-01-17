@@ -1996,34 +1996,195 @@ function cleanHtmlContent(html) {
  * @returns {Promise<{html: string, text: string}>}
  */
 async function fetchWebpageContent(url) {
-  console.log(`[ScraperAPI] Fetching URL: ${url}`);
+  console.log(`[Scraper] Fetching URL: ${url}`);
   
-  // Use ScraperAPI with render=true for JavaScript-heavy sites
-  // Added country_code=us and premium=true for better success rate
-  const scraperUrl = `https://api.scraperapi.com?api_key=${SCRAPER_API_KEY}&url=${encodeURIComponent(url)}&render=true&country_code=us`;
+  // Check if it's an Unstop URL - they need special handling
+  const isUnstop = url.includes('unstop.com');
   
-  console.log(`[ScraperAPI] Request URL: ${scraperUrl.substring(0, 100)}...`);
+  // Try ScraperAPI first, fallback to Puppeteer if it fails
+  let html = '';
   
-  const response = await axios.get(scraperUrl, {
-    timeout: 90000, // ScraperAPI can take longer due to rendering
-    maxRedirects: 5,
-  });
+  try {
+    // Use ScraperAPI with render=true for JavaScript-heavy sites
+    let scraperUrl = `https://api.scraperapi.com?api_key=${SCRAPER_API_KEY}&url=${encodeURIComponent(url)}&render=true&country_code=in`;
+    
+    console.log(`[ScraperAPI] Attempting fetch...`);
+    
+    const response = await axios.get(scraperUrl, {
+      timeout: 60000,
+      maxRedirects: 5,
+    });
+    
+    html = response.data;
+    console.log(`[ScraperAPI] Success! HTML length: ${html.length}`);
+    
+  } catch (scraperError) {
+    console.log(`[ScraperAPI] Failed: ${scraperError.message}. Trying Puppeteer fallback...`);
+    
+    // Fallback to Puppeteer for local scraping
+    try {
+      html = await fetchWithPuppeteer(url, isUnstop);
+    } catch (puppeteerError) {
+      console.error(`[Puppeteer] Also failed: ${puppeteerError.message}`);
+      throw new Error(`Both ScraperAPI and Puppeteer failed. ScraperAPI: ${scraperError.message}`);
+    }
+  }
   
-  const html = response.data;
-  
-  // Log raw HTML length for debugging
-  console.log(`[ScraperAPI] Raw HTML length: ${html.length}`);
+  if (!html || html.length < 100) {
+    throw new Error('Failed to fetch meaningful content from the page');
+  }
   
   const text = cleanHtmlContent(html);
   
-  console.log(`[ScraperAPI] Successfully fetched ${text.length} chars of cleaned text`);
-  
-  // If text is too short, log a sample of raw HTML for debugging
-  if (text.length < 100) {
-    console.log(`[ScraperAPI] Warning: Very little text extracted. Raw HTML sample: ${html.substring(0, 500)}`);
+  // For Unstop, try to extract key data from specific elements
+  let extractedData = '';
+  if (isUnstop) {
+    extractedData = extractUnstopSpecificData(html);
   }
   
-  return { html, text };
+  const finalText = extractedData ? `${extractedData}\n\n${text}` : text;
+  
+  console.log(`[Scraper] Final text length: ${finalText.length} chars`);
+  
+  return { html, text: finalText };
+}
+
+/**
+ * Fetch webpage using Puppeteer (local headless browser)
+ */
+async function fetchWithPuppeteer(url, waitForDynamic = false) {
+  console.log(`[Puppeteer] Launching browser for: ${url}`);
+  
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu',
+      '--window-size=1920x1080',
+    ]
+  });
+  
+  try {
+    const page = await browser.newPage();
+    
+    // Set a realistic user agent
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    // Set viewport
+    await page.setViewport({ width: 1920, height: 1080 });
+    
+    // Navigate to the page
+    await page.goto(url, {
+      waitUntil: 'networkidle2',
+      timeout: 60000
+    });
+    
+    // For dynamic sites, wait a bit more and scroll to load lazy content
+    if (waitForDynamic) {
+      console.log(`[Puppeteer] Waiting for dynamic content...`);
+      
+      // Wait for potential dynamic content
+      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 3000)));
+      
+      // Scroll to trigger lazy loading
+      await page.evaluate(async () => {
+        await new Promise((resolve) => {
+          let totalHeight = 0;
+          const distance = 300;
+          const timer = setInterval(() => {
+            window.scrollBy(0, distance);
+            totalHeight += distance;
+            if (totalHeight >= document.body.scrollHeight || totalHeight > 3000) {
+              clearInterval(timer);
+              resolve();
+            }
+          }, 100);
+        });
+      });
+      
+      // Wait a bit more after scrolling
+      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 2000)));
+    }
+    
+    const html = await page.content();
+    console.log(`[Puppeteer] Got HTML: ${html.length} chars`);
+    
+    return html;
+    
+  } finally {
+    await browser.close();
+  }
+}
+
+/**
+ * Extract Unstop-specific data from HTML before cleaning
+ * Unstop uses specific class names for stipend, deadline, etc.
+ */
+function extractUnstopSpecificData(html) {
+  const $ = cheerio.load(html);
+  const data = [];
+  
+  // Try multiple selectors for stipend
+  const stipendSelectors = [
+    '.stipend-amt', '.stipend', '.compensation', 
+    '[class*="stipend"]', '[class*="compensation"]',
+    '.opportunity_stats span', '.stats-item',
+    '.job-stipend', '.salary-range'
+  ];
+  
+  for (const selector of stipendSelectors) {
+    const text = $(selector).text().trim();
+    if (text && (text.includes('₹') || text.includes('K') || text.includes('Month') || text.includes('LPA'))) {
+      data.push(`STIPEND: ${text}`);
+      break;
+    }
+  }
+  
+  // Try to find deadline
+  const deadlineSelectors = [
+    '.apply-by', '.deadline', '[class*="deadline"]',
+    '.registration-deadline', '.end-date',
+    'span:contains("Days Left")', '.days-left'
+  ];
+  
+  for (const selector of deadlineSelectors) {
+    const text = $(selector).text().trim();
+    if (text && (text.includes('Day') || text.includes('Jan') || text.includes('Feb') || text.includes('202'))) {
+      data.push(`DEADLINE: ${text}`);
+      break;
+    }
+  }
+  
+  // Look for any text containing stipend amount pattern
+  $('body').find('*').each(function() {
+    const text = $(this).clone().children().remove().end().text().trim();
+    // Match patterns like "₹15K", "15K/Month", "₹15,000", "15000/month"
+    if (text && /₹?\s*\d+[,\d]*\s*[kK]?\s*[/-]?\s*(Month|month|LPA|lpa)/i.test(text)) {
+      if (!data.some(d => d.includes('STIPEND'))) {
+        data.push(`STIPEND_FOUND: ${text}`);
+      }
+    }
+    // Match deadline patterns
+    if (text && /\d+\s*Days?\s*Left/i.test(text)) {
+      if (!data.some(d => d.includes('DEADLINE'))) {
+        data.push(`DAYS_LEFT: ${text}`);
+      }
+    }
+  });
+  
+  // Also get the page title and company
+  const title = $('h1').first().text().trim() || $('[class*="title"]').first().text().trim();
+  const company = $('.company-name, .organizer, [class*="company"]').first().text().trim();
+  
+  if (title) data.push(`TITLE: ${title}`);
+  if (company) data.push(`COMPANY: ${company}`);
+  
+  console.log('[Unstop Extractor] Found data:', data);
+  
+  return data.join('\n');
 }
 
 /**
@@ -2060,27 +2221,37 @@ CRITICAL RULES:
 - If multiple internships exist, extract only the MAIN/PRIMARY one
 
 FIELD-SPECIFIC INSTRUCTIONS:
-- STIPEND: Look for keywords like "stipend", "salary", "compensation", "₹", "Rs", "INR", "per month", "/month", "lpa", "CTC". Include the full amount with currency.
-- DEADLINE: Look for "apply by", "last date", "deadline", "applications close", "apply before". Convert to readable date format.
+- STIPEND: Look for keywords like "stipend", "salary", "compensation", "₹", "Rs", "INR", "K/Month", "15K", "20K", "per month", "/month", "lpa", "CTC". Include the full amount with currency. Examples: "₹15K/Month", "₹15,000/month", "₹15K - 20K/Month"
+- DEADLINE: Look for "apply by", "last date", "deadline", "applications close", "apply before", "X Days Left". If you see "X Days Left", calculate the date from today (${new Date().toISOString().split('T')[0]}).
 - LOCATION: Look for city names, "remote", "work from home", "WFH", "hybrid", "on-site", "office location".
 - ELIGIBILITY: Look for "who can apply", "requirements", "qualifications", "skills required", "experience", "education".`;
 
   const userPrompt = `Extract internship/job details from this webpage. Pay special attention to STIPEND and DEADLINE fields.
 
 URL: ${url}
+TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
 
 PAGE CONTENT:
 ${truncatedText}
 
-IMPORTANT: Search the entire content carefully for:
-- Stipend/Salary: Look for ₹, Rs, INR, "per month", "/month", "stipend", "compensation"
-- Deadline: Look for "Apply by", "Last date", "Deadline", specific dates
+IMPORTANT EXTRACTION RULES:
+1. STIPEND: Look for patterns like:
+   - "₹15K/Month - 20K/Month" → extract as "₹15,000 - ₹20,000/month"
+   - "15K/Month" → extract as "₹15,000/month"
+   - "STIPEND_FOUND: ₹ 15K/Month - 20K/Month" → extract the amount
+   - Any amount with ₹, K, Month, LPA
+   
+2. DEADLINE: Look for patterns like:
+   - "13 Days Left" → calculate date as today + 13 days
+   - "DAYS_LEFT: 13 Days Left" → calculate date as today + 13 days
+   - "Apply by 30 Jan 2026" → use that date
+   - Any specific date format
 
 Return ONLY this JSON structure (no other text):
 {
   "title": "Internship/Job title",
-  "stipend": "Monthly stipend with currency (e.g., '₹15,000/month', '₹10,000 - ₹15,000/month') or 'Unpaid' or 'Not mentioned'",
-  "deadline": "Application deadline date (e.g., '25 Dec 2025' or '2025-12-25') or 'Not mentioned'",
+  "stipend": "Monthly stipend with currency (e.g., '₹15,000 - ₹20,000/month') or 'Unpaid' or 'Not mentioned'",
+  "deadline": "Application deadline date in YYYY-MM-DD format (e.g., '2026-01-30') or 'Not mentioned'",
   "location": "City name or 'Remote' or 'Work from home' or 'Not mentioned'",
   "eligibility": "Who can apply / requirements or 'Not mentioned'"
 }`;

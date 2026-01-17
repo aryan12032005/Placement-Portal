@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -66,10 +67,10 @@ export const EditJob: React.FC = () => {
         rounds: formData.rounds.split(',').map(r => r.trim())
       });
 
-      alert('Internship updated successfully!');
+      toast.success('Internship updated successfully!');
       navigate('/admin/dashboard');
     } catch (error) {
-      alert('Failed to update job');
+      toast.error('Failed to update internship');
     }
   };
 

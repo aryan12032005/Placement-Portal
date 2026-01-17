@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { Api } from '../services/api';
@@ -33,10 +34,10 @@ export const Register: React.FC = () => {
         cgpa: 0,
         skills: [],
       });
-      alert('Registration successful! Please login.');
+      toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error: any) {
-      alert(error.message || 'Registration failed');
+      toast.error(error.message || 'Registration failed');
     }
     setLoading(false);
   };
@@ -50,17 +51,17 @@ export const Register: React.FC = () => {
           login(user);
           navigate('/student/dashboard');
         } else {
-          alert('Google sign-up failed. Please try again.');
+          toast.error('Google sign-up failed. Please try again.');
         }
       }
     } catch (err) {
-      alert('Google sign-up failed. Please try again.');
+      toast.error('Google sign-up failed. Please try again.');
     }
     setLoading(false);
   };
 
   const handleGoogleError = () => {
-    alert('Google sign-up was cancelled or failed.');
+    toast.error('Google sign-up was cancelled or failed.');
   };
 
   const inputClass = "w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-100 focus:border-purple-400 outline-none transition-all bg-slate-50";

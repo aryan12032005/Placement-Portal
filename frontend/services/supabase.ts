@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import toast from 'react-hot-toast';
 
 // Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -34,7 +35,7 @@ export const uploadResume = async (file: File, userId: string): Promise<string |
       console.error('Upload error:', uploadError.message);
       // Provide helpful error messages
       if (uploadError.message.includes('Bucket not found')) {
-        alert(`Please create a storage bucket named "${BUCKET_NAME}" in your Supabase dashboard.\n\nGo to: Storage > New bucket > Name: ${BUCKET_NAME} > Make it Public`);
+        toast.error(`Please create a storage bucket named "${BUCKET_NAME}" in your Supabase dashboard.\n\nGo to: Storage > New bucket`, { duration: 6000 });
       }
       throw uploadError;
     }
@@ -100,7 +101,7 @@ export const uploadProfilePicture = async (file: File, userId: string): Promise<
     if (uploadError) {
       console.error('Upload error:', uploadError.message);
       if (uploadError.message.includes('Bucket not found')) {
-        alert(`Please create a storage bucket named "${PROFILE_PICS_BUCKET}" in your Supabase dashboard.\n\nGo to: Storage > New bucket > Name: ${PROFILE_PICS_BUCKET} > Make it Public`);
+        toast.error(`Please create a storage bucket named "${PROFILE_PICS_BUCKET}" in your Supabase dashboard.\n\nGo to: Storage > New bucket`, { duration: 6000 });
       }
       throw uploadError;
     }

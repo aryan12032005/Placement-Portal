@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -67,15 +68,15 @@ export const StudentJobs: React.FC = () => {
   const handleApply = async (internship: Job) => {
     if (!user) return;
     const { eligible, reason } = checkEligibility(internship);
-    if (!eligible) { alert(`You are not eligible. ${reason}`); return; }
-    if (!user.resumeUrl) { alert("Please upload a resume in your Profile before applying."); return; }
+    if (!eligible) { toast.error(`You are not eligible. ${reason}`); return; }
+    if (!user.resumeUrl) { toast.error("Please upload a resume in your Profile before applying."); return; }
     
     setLoading(true);
     await Api.applyForJob(internship.id, user.id, user.name, internship.title, internship.companyName);
     await Api.addNotification(internship.companyId, `New applicant ${user.name} for ${internship.title}`);
     setMyApps([...myApps, internship.id]);
     setLoading(false);
-    alert('Applied successfully!');
+    toast.success('Applied successfully!');
   };
 
   const filteredInternships = internships

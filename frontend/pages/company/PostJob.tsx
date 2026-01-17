@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -9,11 +10,87 @@ import {
   Link as LinkIcon, FileText, Globe, Sparkles, Loader2, CheckCircle, AlertCircle,
   Trash2, ChevronDown, ChevronUp, Settings, StopCircle
 } from 'lucide-react';
+import { ConfirmDialog, useConfirmDialog } from '../../components/ConfirmDialog';
+
+// Helper function to parse various date formats into YYYY-MM-DD
+const parseFlexibleDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  
+  // Already in YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return dateStr;
+  }
+  
+  // Month name mappings
+  const months: { [key: string]: number } = {
+    'jan': 0, 'january': 0, 'feb': 1, 'february': 1, 'mar': 2, 'march': 2,
+    'apr': 3, 'april': 3, 'may': 4, 'jun': 5, 'june': 5,
+    'jul': 6, 'july': 6, 'aug': 7, 'august': 7, 'sep': 8, 'september': 8,
+    'oct': 9, 'october': 9, 'nov': 10, 'november': 10, 'dec': 11, 'december': 11
+  };
+  
+  const cleanStr = dateStr.toLowerCase().replace(/[,]/g, '').trim();
+  
+  // Try formats like "29 Jan 2026", "29 January 2026", "Jan 29 2026", "January 29, 2026"
+  let match = cleanStr.match(/(\d{1,2})\s*(?:st|nd|rd|th)?\s*([a-z]+)\s*(\d{4})/);
+  if (match) {
+    const day = parseInt(match[1]);
+    const month = months[match[2]];
+    const year = parseInt(match[3]);
+    if (month !== undefined && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Try "Jan 29 2026" or "January 29 2026"
+  match = cleanStr.match(/([a-z]+)\s*(\d{1,2})(?:st|nd|rd|th)?\s*(\d{4})/);
+  if (match) {
+    const month = months[match[1]];
+    const day = parseInt(match[2]);
+    const year = parseInt(match[3]);
+    if (month !== undefined && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Try DD/MM/YYYY or DD-MM-YYYY
+  match = cleanStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (match) {
+    const day = parseInt(match[1]);
+    const month = parseInt(match[2]);
+    const year = parseInt(match[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Try MM/DD/YYYY (US format) - only if month <= 12 and day > 12
+  match = cleanStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (match) {
+    const first = parseInt(match[1]);
+    const second = parseInt(match[2]);
+    const year = parseInt(match[3]);
+    if (first <= 12 && second > 12 && second <= 31 && year >= 2020) {
+      return `${year}-${String(first).padStart(2, '0')}-${String(second).padStart(2, '0')}`;
+    }
+  }
+  
+  // Fallback: try native Date parsing
+  try {
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime()) && parsed.getFullYear() >= 2020) {
+      return parsed.toISOString().split('T')[0];
+    }
+  } catch {}
+  
+  return '';
+};
 
 export const PostJob: React.FC = () => {
   const { user } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { confirm, dialogProps } = useConfirmDialog();
   
   const [inputMode, setInputMode] = useState<'manual' | 'url'>('manual');
   const [urlInput, setUrlInput] = useState('');
@@ -39,26 +116,40 @@ export const PostJob: React.FC = () => {
   };
 
   const handleDeleteInternship = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    const confirmed = await confirm({
+      title: 'Delete Internship',
+      message: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     
     setDeleting(id);
     try {
       await Api.deleteJob(id);
       setInternships(internships.filter(i => i.id !== id));
+      toast.success('Internship deleted successfully!');
     } catch (error) {
-      alert('Failed to delete internship');
+      toast.error('Failed to delete internship');
     }
     setDeleting(null);
   };
 
   const handleStopRecruiting = async (id: string, title: string) => {
-    if (!confirm(`Stop recruiting for "${title}"?`)) return;
+    const confirmed = await confirm({
+      title: 'Stop Recruiting',
+      message: `Are you sure you want to stop recruiting for "${title}"?`,
+      confirmText: 'Stop Recruiting',
+      variant: 'warning'
+    });
+    if (!confirmed) return;
     
     try {
       await Api.stopRecruiting(id);
       fetchInternships();
+      toast.success('Recruiting stopped successfully!');
     } catch (error) {
-      alert('Failed to stop recruiting');
+      toast.error('Failed to stop recruiting');
     }
   };
   
@@ -115,40 +206,61 @@ export const PostJob: React.FC = () => {
       const data = await response.json();
       console.log('Extracted internship data:', data);
 
+      // Track which fields couldn't be extracted
+      const missingFields: string[] = [];
+
       // Parse stipend - extract numeric value
-      let stipendValue = '15000';
-      if (data.stipend && data.stipend !== 'Not mentioned') {
+      let stipendValue = '';
+      if (data.stipend && data.stipend !== 'Not mentioned' && data.stipend !== 'Not Disclosed') {
         // Extract numbers from stipend string like "₹15,000/month" or "15000"
         const stipendMatch = data.stipend.replace(/,/g, '').match(/(\d+)/);
         if (stipendMatch) {
           stipendValue = stipendMatch[1];
         }
       }
+      if (!stipendValue) missingFields.push('Stipend');
 
-      // Parse deadline - convert to YYYY-MM-DD format
-      let deadlineValue = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      if (data.deadline && data.deadline !== 'Not mentioned') {
-        // Try to parse the deadline date
-        const parsedDate = new Date(data.deadline);
-        if (!isNaN(parsedDate.getTime())) {
-          deadlineValue = parsedDate.toISOString().split('T')[0];
-        }
+      // Parse deadline - convert to YYYY-MM-DD format with improved parsing
+      let deadlineValue = '';
+      if (data.deadline && data.deadline !== 'Not mentioned' && data.deadline !== 'Not Disclosed') {
+        deadlineValue = parseFlexibleDate(data.deadline);
       }
+      if (!deadlineValue) missingFields.push('Deadline');
+
+      // Parse location
+      let locationValue = '';
+      if (data.location && data.location !== 'Not mentioned' && data.location !== 'Not Disclosed') {
+        locationValue = data.location;
+      }
+      if (!locationValue) missingFields.push('Location');
 
       // Map extracted data to form fields
       const fetchedData = {
-        title: data.title !== 'Not mentioned' ? data.title : 'Internship Opportunity',
-        description: data.eligibility !== 'Not mentioned' 
+        title: (data.title && data.title !== 'Not mentioned' && data.title !== 'Not Disclosed') 
+          ? data.title 
+          : '',
+        description: (data.eligibility && data.eligibility !== 'Not mentioned' && data.eligibility !== 'Not Disclosed')
           ? `Eligibility: ${data.eligibility}` 
-          : 'Details fetched from the provided URL. Please verify and update the information.',
+          : '',
         package: stipendValue,
-        location: data.location !== 'Not mentioned' ? data.location : 'Remote',
+        location: locationValue,
         type: JobType.INTERNSHIP,
         minCGPA: 6.0,
         branches: 'Computer Science, Information Technology',
         rounds: 'Online Assessment, Technical Interview, HR Interview',
         deadline: deadlineValue,
       };
+
+      // Show toast with extraction results
+      if (missingFields.length > 0) {
+        toast(`Some fields couldn't be extracted: ${missingFields.join(', ')}. Please fill them manually.`, {
+          icon: '⚠️',
+          style: { background: '#F59E0B', color: '#fff' },
+          duration: 5000,
+        });
+      } else {
+        toast.success('All fields extracted successfully!');
+      }
 
       setFormData(prev => ({ ...prev, ...fetchedData, registrationUrl: urlInput.trim() }));
       setFetchSuccess(true);
@@ -183,7 +295,7 @@ export const PostJob: React.FC = () => {
         registrationUrl: formData.registrationUrl || undefined
       }, user.companyName || user.name);
 
-      alert('Internship posted successfully!');
+      toast.success('Internship posted successfully!');
       // Refresh the internships list
       fetchInternships();
       // Reset form
@@ -200,11 +312,13 @@ export const PostJob: React.FC = () => {
         registrationUrl: ''
       });
     } catch (error) {
-      alert('Failed to post internship. Please try again.');
+      toast.error('Failed to post internship. Please try again.');
     }
   };
 
   return (
+    <>
+    <ConfirmDialog {...dialogProps} />
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
@@ -597,5 +711,6 @@ export const PostJob: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };

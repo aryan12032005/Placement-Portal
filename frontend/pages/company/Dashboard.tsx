@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Job, Application } from '../../types';
 import { Users, Briefcase, TrendingUp, Edit, Plus, Building2, Target, StopCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ConfirmDialog, useConfirmDialog } from '../../components/ConfirmDialog';
 
 export const CompanyDashboard: React.FC = () => {
   const { user } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { confirm, dialogProps } = useConfirmDialog();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
 
@@ -26,13 +29,20 @@ export const CompanyDashboard: React.FC = () => {
   }, [user]);
 
   const handleStopRecruiting = async (jobId: string) => {
-    if (window.confirm('Are you sure you want to stop recruiting for this job?')) {
+    const confirmed = await confirm({
+      title: 'Stop Recruiting',
+      message: 'Are you sure you want to stop recruiting for this job?',
+      confirmText: 'Stop Recruiting',
+      variant: 'warning'
+    });
+    if (confirmed) {
       try {
         await Api.stopRecruiting(jobId);
         const allJobs = await Api.getJobs();
         setJobs(allJobs.filter(j => j.companyId === user?.id));
+        toast.success('Recruiting stopped successfully!');
       } catch (error) {
-        alert('Failed to stop recruiting');
+        toast.error('Failed to stop recruiting');
       }
     }
   };
@@ -46,6 +56,8 @@ export const CompanyDashboard: React.FC = () => {
   ];
 
   return (
+    <>
+    <ConfirmDialog {...dialogProps} />
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className={`${isDark ? 'bg-slate-800' : 'bg-white'} rounded-xl p-6 border ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
@@ -175,5 +187,6 @@ export const CompanyDashboard: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };

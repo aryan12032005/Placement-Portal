@@ -86,6 +86,45 @@ export interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
 }
 
+// Announcements - Admin to All Students
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'urgent';
+  createdAt: string;
+  createdBy: string;
+  expiresAt?: string;
+  isActive: boolean;
+  readBy: string[]; // Array of user IDs who have read this
+}
+
+// Support Messages - Student to Admin Communication
+export interface SupportMessage {
+  id: string;
+  ticketId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: UserRole;
+  message: string;
+  createdAt: string;
+  attachments?: string[];
+}
+
+export interface SupportTicket {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  subject: string;
+  category: 'general' | 'technical' | 'internship' | 'account' | 'feedback';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
+  messages: SupportMessage[];
+}
+
 export interface Stats {
   totalStudents: number;
   placedStudents: number;

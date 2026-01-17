@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useTheme } from '../../context/ThemeContext';
 import { User } from '../../types';
 import { Users, Search, Check, Building2, GraduationCap, Shield, Trash2 } from 'lucide-react';
+import { ConfirmDialog, useConfirmDialog } from '../../components/ConfirmDialog';
 
 export const UsersManagement: React.FC = () => {
   const { isDark } = useTheme();
+  const { confirm, dialogProps } = useConfirmDialog();
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<string>('ALL');
@@ -19,20 +22,26 @@ export const UsersManagement: React.FC = () => {
   useEffect(() => { loadUsers(); }, []);
 
   const handleApprove = async (userId: string) => {
-    try { await Api.approveUser(userId); loadUsers(); } 
-    catch (error: any) { alert(error.message || 'Failed to approve user'); }
+    try { await Api.approveUser(userId); loadUsers(); toast.success('User approved successfully!'); } 
+    catch (error: any) { toast.error(error.message || 'Failed to approve user'); }
   };
 
   const handleDelete = async (userId: string, userName: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${userName}"? This action cannot be undone.`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Delete User',
+      message: `Are you sure you want to delete "${userName}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+    
     setDeleting(userId);
     try {
       await Api.deleteUser(userId);
       loadUsers();
+      toast.success('User deleted successfully!');
     } catch (error: any) {
-      alert(error.message || 'Failed to delete user');
+      toast.error(error.message || 'Failed to delete user');
     }
     setDeleting(null);
   };
@@ -54,6 +63,8 @@ export const UsersManagement: React.FC = () => {
   const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border`;
 
   return (
+    <>
+    <ConfirmDialog {...dialogProps} />
     <div className="space-y-6">
       {/* Header */}
       <div className={cardClass + ' p-6'}>
@@ -183,5 +194,6 @@ export const UsersManagement: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };

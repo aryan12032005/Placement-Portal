@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useTheme } from '../../context/ThemeContext';
 import { Api } from '../../services/api';
 import { 
@@ -7,6 +8,69 @@ import {
   ArrowLeft, Send, Loader2, Globe, Sparkles, Tag, Clock, ExternalLink,
   CheckCircle, AlertCircle, Trash2, ChevronDown, ChevronUp, Settings
 } from 'lucide-react';
+import { ConfirmDialog, useConfirmDialog } from '../../components/ConfirmDialog';
+
+// Helper function to parse various date formats into YYYY-MM-DD
+const parseFlexibleDate = (dateStr: string): string => {
+  if (!dateStr || dateStr === 'Not mentioned' || dateStr === 'Not Disclosed') return '';
+  
+  // Already in YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return dateStr;
+  }
+  
+  const months: { [key: string]: number } = {
+    'jan': 0, 'january': 0, 'feb': 1, 'february': 1, 'mar': 2, 'march': 2,
+    'apr': 3, 'april': 3, 'may': 4, 'jun': 5, 'june': 5,
+    'jul': 6, 'july': 6, 'aug': 7, 'august': 7, 'sep': 8, 'september': 8,
+    'oct': 9, 'october': 9, 'nov': 10, 'november': 10, 'dec': 11, 'december': 11
+  };
+  
+  const cleanStr = dateStr.toLowerCase().replace(/[,]/g, '').trim();
+  
+  // Try "29 Jan 2026"
+  let match = cleanStr.match(/(\d{1,2})\s*(?:st|nd|rd|th)?\s*([a-z]+)\s*(\d{4})/);
+  if (match) {
+    const day = parseInt(match[1]);
+    const month = months[match[2]];
+    const year = parseInt(match[3]);
+    if (month !== undefined && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Try "Jan 29 2026"
+  match = cleanStr.match(/([a-z]+)\s*(\d{1,2})(?:st|nd|rd|th)?\s*(\d{4})/);
+  if (match) {
+    const month = months[match[1]];
+    const day = parseInt(match[2]);
+    const year = parseInt(match[3]);
+    if (month !== undefined && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Try DD/MM/YYYY
+  match = cleanStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (match) {
+    const day = parseInt(match[1]);
+    const month = parseInt(match[2]);
+    const year = parseInt(match[3]);
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 2020) {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+  }
+  
+  // Fallback: try native Date parsing
+  try {
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime()) && parsed.getFullYear() >= 2020) {
+      return parsed.toISOString().split('T')[0];
+    }
+  } catch {}
+  
+  return '';
+};
 
 interface Hackathon {
   id: string;
@@ -36,6 +100,7 @@ interface HackathonFormData {
 export const PostHackathon: React.FC = () => {
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { confirm, dialogProps } = useConfirmDialog();
   
   const [inputMode, setInputMode] = useState<'manual' | 'url'>('manual');
   const [urlInput, setUrlInput] = useState('');
@@ -61,14 +126,21 @@ export const PostHackathon: React.FC = () => {
   };
 
   const handleDeleteHackathon = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    const confirmed = await confirm({
+      title: 'Delete Hackathon',
+      message: `Are you sure you want to delete "${title}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
     
     setDeleting(id);
     try {
       await Api.deleteHackathon(id);
       setHackathons(hackathons.filter(h => h.id !== id));
+      toast.success('Hackathon deleted successfully!');
     } catch (error) {
-      alert('Failed to delete hackathon');
+      toast.error('Failed to delete hackathon');
     }
     setDeleting(null);
   };
@@ -128,33 +200,48 @@ export const PostHackathon: React.FC = () => {
       const data = await response.json();
       console.log('Extracted hackathon data:', data);
 
-      // Parse deadline - convert to YYYY-MM-DD format
-      const parseDate = (dateStr: string): string => {
-        if (!dateStr || dateStr === 'Not mentioned') {
-          return '';
-        }
-        const parsedDate = new Date(dateStr);
-        if (!isNaN(parsedDate.getTime())) {
-          return parsedDate.toISOString().split('T')[0];
-        }
-        return '';
-      };
+      // Track which fields couldn't be extracted
+      const missingFields: string[] = [];
+      
+      const isValid = (val: string) => val && val !== 'Not mentioned' && val !== 'Not Disclosed';
 
-      // Map extracted data to form fields
+      // Parse dates with improved parsing
+      const deadlineVal = parseFlexibleDate(data.deadline);
+      const startDateVal = parseFlexibleDate(data.startDate);
+      const endDateVal = parseFlexibleDate(data.endDate);
+      
+      if (!deadlineVal) missingFields.push('Deadline');
+      if (!startDateVal) missingFields.push('Start Date');
+      if (!endDateVal) missingFields.push('End Date');
+      if (!isValid(data.prize)) missingFields.push('Prize');
+      if (!isValid(data.title)) missingFields.push('Title');
+
+      // Map extracted data to form fields - no fallback defaults
       const fetchedData: Partial<HackathonFormData> = {
-        title: data.title !== 'Not mentioned' ? data.title : 'Hackathon Event',
-        organizer: data.organizer !== 'Not mentioned' ? data.organizer : 'Organization',
-        description: data.description !== 'Not mentioned' ? data.description : 'Details fetched from the provided URL. Please verify and update the information.',
-        prize: data.prize !== 'Not mentioned' ? data.prize : '₹1,00,000',
+        title: isValid(data.title) ? data.title : '',
+        organizer: isValid(data.organizer) ? data.organizer : '',
+        description: isValid(data.description) ? data.description : '',
+        prize: isValid(data.prize) ? data.prize : '',
         mode: (data.mode === 'Online' || data.mode === 'Offline' || data.mode === 'Hybrid') ? data.mode : 'Online',
         difficulty: (data.difficulty === 'Beginner' || data.difficulty === 'Intermediate' || data.difficulty === 'Advanced') ? data.difficulty : 'Intermediate',
-        tags: data.tags !== 'Not mentioned' ? data.tags : 'Technology, Innovation',
-        location: data.location !== 'Not mentioned' ? data.location : '',
+        tags: isValid(data.tags) ? data.tags : '',
+        location: isValid(data.location) ? data.location : '',
         registrationUrl: urlInput.trim(),
-        deadline: parseDate(data.deadline) || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        startDate: parseDate(data.startDate) || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: parseDate(data.endDate) || new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        deadline: deadlineVal,
+        startDate: startDateVal,
+        endDate: endDateVal,
       };
+
+      // Show toast with extraction results
+      if (missingFields.length > 0) {
+        toast(`Some fields couldn't be extracted: ${missingFields.join(', ')}. Please fill them manually.`, {
+          icon: '⚠️',
+          style: { background: '#F59E0B', color: '#fff' },
+          duration: 5000,
+        });
+      } else {
+        toast.success('All fields extracted successfully!');
+      }
 
       setFormData(prev => ({ ...prev, ...fetchedData }));
       setFetchSuccess(true);
@@ -173,7 +260,7 @@ export const PostHackathon: React.FC = () => {
     
     try {
       await Api.postHackathon(formData);
-      alert('Hackathon posted successfully!');
+      toast.success('Hackathon posted successfully!');
       // Refresh the hackathons list
       fetchHackathons();
       // Reset form
@@ -192,11 +279,13 @@ export const PostHackathon: React.FC = () => {
         registrationUrl: ''
       });
     } catch (error) {
-      alert('Failed to post hackathon. Please try again.');
+      toast.error('Failed to post hackathon. Please try again.');
     }
   };
 
   return (
+    <>
+    <ConfirmDialog {...dialogProps} />
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
@@ -620,5 +709,6 @@ export const PostHackathon: React.FC = () => {
         )}
       </div>
     </div>
+    </>
   );
 };

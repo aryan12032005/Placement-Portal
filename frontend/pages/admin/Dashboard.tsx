@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Api } from '../../services/api';
 import { useTheme } from '../../context/ThemeContext';
 import { StatsChart } from '../../components/StatsChart';
@@ -94,8 +95,8 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => { loadData(); }, []);
 
   const handleApprove = async (userId: string) => {
-    try { await Api.approveUser(userId); loadData(); } 
-    catch (error: any) { alert(error.message || 'Failed to approve user'); }
+    try { await Api.approveUser(userId); loadData(); toast.success('User approved successfully!'); } 
+    catch (error: any) { toast.error(error.message || 'Failed to approve user'); }
   };
 
   const cards = [
