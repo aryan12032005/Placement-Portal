@@ -19,6 +19,7 @@ const GOOGLE_CLIENT_ID = '54168296388-6k44kvp61sg35ldnfatuij2s64h2prq8.apps.goog
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const SCRAPER_API_KEY = process.env.SCRAPER_API_KEY || '097d48565087bd7ace29252804036935';
+const SCRAPINGBEE_API_KEY = process.env.SCRAPINGBEE_API_KEY || 'R98FDGIQTOOXRFQ3SK63BQLMV69MN9T30QIRN6RV3F70QSE5R98791M7V3GQYS7I2KUJSDHF7EYJMXNX';
 
 app.use(cors());
 app.use(express.json());
@@ -2015,32 +2016,50 @@ async function fetchWebpageContent(url) {
   // Check if it's an Unstop URL - they need special handling
   const isUnstop = url.includes('unstop.com');
   
-  // Try ScraperAPI first, fallback to Puppeteer if it fails
+  // Try ScrapingBee first, then ScraperAPI, then Puppeteer as fallback
   let html = '';
   
+  // Step 1: Try ScrapingBee first (primary scraper)
   try {
-    // Use ScraperAPI with render=true for JavaScript-heavy sites
-    let scraperUrl = `https://api.scraperapi.com?api_key=${SCRAPER_API_KEY}&url=${encodeURIComponent(url)}&render=true&country_code=in`;
+    const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(url)}&render_js=true&country_code=in`;
     
-    console.log(`[ScraperAPI] Attempting fetch...`);
+    console.log(`[ScrapingBee] Attempting fetch (primary)...`);
     
-    const response = await axios.get(scraperUrl, {
+    const response = await axios.get(scrapingBeeUrl, {
       timeout: 60000,
       maxRedirects: 5,
     });
     
     html = response.data;
-    console.log(`[ScraperAPI] Success! HTML length: ${html.length}`);
+    console.log(`[ScrapingBee] Success! HTML length: ${html.length}`);
     
-  } catch (scraperError) {
-    console.log(`[ScraperAPI] Failed: ${scraperError.message}. Trying Puppeteer fallback...`);
+  } catch (scrapingBeeError) {
+    console.log(`[ScrapingBee] Failed: ${scrapingBeeError.message}. Trying ScraperAPI fallback...`);
     
-    // Fallback to Puppeteer for local scraping
+    // Step 2: Try ScraperAPI as fallback
     try {
-      html = await fetchWithPuppeteer(url, isUnstop);
-    } catch (puppeteerError) {
-      console.error(`[Puppeteer] Also failed: ${puppeteerError.message}`);
-      throw new Error(`Both ScraperAPI and Puppeteer failed. ScraperAPI: ${scraperError.message}`);
+      let scraperUrl = `https://api.scraperapi.com?api_key=${SCRAPER_API_KEY}&url=${encodeURIComponent(url)}&render=true&country_code=in`;
+      
+      console.log(`[ScraperAPI] Attempting fetch (fallback)...`);
+      
+      const response = await axios.get(scraperUrl, {
+        timeout: 60000,
+        maxRedirects: 5,
+      });
+      
+      html = response.data;
+      console.log(`[ScraperAPI] Success! HTML length: ${html.length}`);
+      
+    } catch (scraperError) {
+      console.log(`[ScraperAPI] Failed: ${scraperError.message}. Trying Puppeteer fallback...`);
+      
+      // Step 3: Fallback to Puppeteer for local scraping
+      try {
+        html = await fetchWithPuppeteer(url, isUnstop);
+      } catch (puppeteerError) {
+        console.error(`[Puppeteer] Also failed: ${puppeteerError.message}`);
+        throw new Error(`All scrapers failed. ScrapingBee: ${scrapingBeeError.message}, ScraperAPI: ${scraperError.message}`);
+      }
     }
   }
   
