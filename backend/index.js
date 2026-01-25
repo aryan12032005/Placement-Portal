@@ -24,6 +24,20 @@ app.use(cors());
 app.use(express.json());
 
 // ============================================================
+// HEALTH CHECK API
+// ============================================================
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// ============================================================
 // OPENROUTER AI-POWERED DATA EXTRACTION
 // ============================================================
 
