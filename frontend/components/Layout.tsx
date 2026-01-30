@@ -33,6 +33,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
 
   const handleLogout = () => {
     logout();
@@ -77,33 +78,36 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   return (
     <div className={`flex h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      {/* Sidebar - Clean Professional Design */}
-      <aside className={`w-64 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-r hidden md:flex flex-col`}>
+      {/* Sidebar - Collapsible Design */}
+      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-r hidden md:flex flex-col transition-all duration-300`}>
         {/* Logo */}
-        <div className={`p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <div className={`p-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'} flex items-center justify-center`}>
+          <Link to="/" className={`flex items-center gap-3 hover:opacity-80 transition-opacity ${sidebarCollapsed ? 'justify-center' : ''}`}>
+            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <GraduationCap className="text-white" size={22} />
             </div>
-            <div>
-              <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
-              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getRoleLabel()} Portal</p>
-            </div>
+            {!sidebarCollapsed && (
+              <div>
+                <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
+                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getRoleLabel()} Portal</p>
+              </div>
+            )}
           </Link>
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className={`flex-1 ${sidebarCollapsed ? 'p-2' : 'p-4'} space-y-1`}>
           <Link
             to="/"
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+            title="Home"
+            className={`flex items-center gap-3 ${sidebarCollapsed ? 'justify-center px-2' : 'px-4'} py-2.5 rounded-lg transition-all ${
               isDark 
                 ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Home size={18} />
-            <span className="font-medium text-sm">Home</span>
+            {!sidebarCollapsed && <span className="font-medium text-sm">Home</span>}
           </Link>
           
           <div className={`my-3 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}></div>
@@ -114,7 +118,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+                title={item.label}
+                className={`flex items-center gap-3 ${sidebarCollapsed ? 'justify-center px-2' : 'px-4'} py-2.5 rounded-lg transition-all ${
                   isActive 
                     ? 'bg-indigo-600 text-white font-medium' 
                     : isDark 
@@ -123,53 +128,67 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 }`}
               >
                 <item.icon size={18} />
-                <span className="font-medium text-sm">{item.label}</span>
+                {!sidebarCollapsed && <span className="font-medium text-sm">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
 
         {/* User Section */}
-        <div className={`p-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+        <div className={`${sidebarCollapsed ? 'p-2' : 'p-4'} border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all mb-2 ${
+            title={isDark ? 'Light Mode' : 'Dark Mode'}
+            className={`w-full flex items-center gap-3 ${sidebarCollapsed ? 'justify-center px-2' : 'px-4'} py-2.5 rounded-lg transition-all mb-2 ${
               isDark 
                 ? 'text-slate-400 hover:text-white hover:bg-slate-700/50' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            <span className="font-medium text-sm">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+            {!sidebarCollapsed && <span className="font-medium text-sm">{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
           </button>
 
           {/* User Info */}
-          <div className={`flex items-center gap-3 px-4 py-3 mb-2 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
-            {user.profilePicture ? (
-              <img src={user.profilePicture} alt="Profile" className="w-9 h-9 rounded-lg object-cover" />
-            ) : (
-              <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
-                {user.name.charAt(0).toUpperCase()}
+          {!sidebarCollapsed ? (
+            <div className={`flex items-center gap-3 px-4 py-3 mb-2 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+              {user.profilePicture ? (
+                <img src={user.profilePicture} alt="Profile" className="w-9 h-9 rounded-lg object-cover" />
+              ) : (
+                <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 overflow-hidden">
+                <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user.name}</p>
+                <p className={`text-xs truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</p>
               </div>
-            )}
-            <div className="flex-1 overflow-hidden">
-              <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user.name}</p>
-              <p className={`text-xs truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</p>
             </div>
-          </div>
+          ) : (
+            <div className="flex justify-center mb-2">
+              {user.profilePicture ? (
+                <img src={user.profilePicture} alt="Profile" className="w-9 h-9 rounded-lg object-cover" title={user.name} />
+              ) : (
+                <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold" title={user.name}>
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+            title="Logout"
+            className={`w-full flex items-center gap-3 ${sidebarCollapsed ? 'justify-center px-2' : 'px-4'} py-2.5 rounded-lg transition-all ${
               isDark 
                 ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' 
                 : 'text-slate-600 hover:text-red-600 hover:bg-red-50'
             }`}
           >
             <LogOut size={18} />
-            <span className="font-medium text-sm">Logout</span>
+            {!sidebarCollapsed && <span className="font-medium text-sm">Logout</span>}
           </button>
         </div>
       </aside>
@@ -177,18 +196,45 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Header - Mobile & Desktop */}
-        <header className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b px-6 py-4 flex justify-between items-center`}>
-          {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden p-2 -ml-2"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X size={20} className={isDark ? 'text-white' : 'text-slate-800'} />
-            ) : (
-              <Menu size={20} className={isDark ? 'text-white' : 'text-slate-800'} />
-            )}
-          </button>
+        <header className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b px-4 md:px-6 py-3 md:py-4 flex justify-between items-center`}>
+          {/* Hamburger Menu Button - Works on all screens */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button 
+              className={`md:hidden p-2.5 rounded-xl transition-all ${
+                isDark 
+                  ? 'bg-slate-700 hover:bg-slate-600 text-white' 
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+              }`}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X size={22} />
+              ) : (
+                <Menu size={22} />
+              )}
+            </button>
+
+            {/* Desktop Sidebar Toggle Button */}
+            <button 
+              className={`hidden md:flex p-2.5 rounded-xl transition-all ${
+                isDark 
+                  ? 'bg-slate-700 hover:bg-slate-600 text-white' 
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+              }`}
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              <Menu size={20} />
+            </button>
+
+            {/* Page Title - Desktop */}
+            <div className="hidden md:block">
+              <h1 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                {getNavItems().find(item => item.path === location.pathname)?.label || 'Dashboard'}
+              </h1>
+            </div>
+          </div>
 
           {/* Logo for mobile */}
           <Link to="/" className="md:hidden flex items-center gap-2">
@@ -197,13 +243,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             </div>
             <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
           </Link>
-
-          {/* Page Title - Desktop */}
-          <div className="hidden md:block">
-            <h1 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
-              {getNavItems().find(item => item.path === location.pathname)?.label || 'Dashboard'}
-            </h1>
-          </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
@@ -234,41 +273,112 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </header>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className={`md:hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} border-b p-4`}>
-            <nav className="space-y-1">
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg ${
-                  isDark ? 'text-slate-400 hover:bg-slate-700' : 'text-slate-600 hover:bg-slate-100'
+          <div 
+            className="md:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Mobile Menu Drawer */}
+        <div className={`md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-in-out ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${isDark ? 'bg-slate-800' : 'bg-white'} shadow-2xl`}>
+          {/* Mobile Menu Header */}
+          <div className={`p-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'} flex items-center justify-between`}>
+            <Link to="/" className="flex items-center gap-3" onClick={() => setMobileMenuOpen(false)}>
+              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <GraduationCap className="text-white" size={22} />
+              </div>
+              <div>
+                <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>InternHub</span>
+                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{getRoleLabel()} Portal</p>
+              </div>
+            </Link>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'}`}
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          <nav className="p-4 space-y-1">
+            <Link
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-white' : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              <Home size={20} />
+              <span className="font-medium">Home</span>
+            </Link>
+            
+            <div className={`my-3 border-t ${isDark ? 'border-slate-700' : 'border-slate-100'}`}></div>
+            
+            {getNavItems().map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                    isActive 
+                      ? 'bg-indigo-600 text-white font-medium' 
+                      : isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-white' : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <item.icon size={20} />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Mobile Menu Footer */}
+          <div className={`absolute bottom-0 left-0 right-0 p-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+            {/* User Info */}
+            <div className={`flex items-center gap-3 px-3 py-3 mb-3 rounded-lg ${isDark ? 'bg-slate-700/50' : 'bg-slate-50'}`}>
+              {user.profilePicture ? (
+                <img src={user.profilePicture} alt="Profile" className="w-10 h-10 rounded-lg object-cover" />
+              ) : (
+                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 overflow-hidden">
+                <p className={`font-medium truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>{user.name}</p>
+                <p className={`text-sm truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</p>
+              </div>
+            </div>
+
+            {/* Theme & Logout */}
+            <div className="flex gap-2">
+              <button
+                onClick={toggleTheme}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all ${
+                  isDark 
+                    ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                <Home size={18} />
-                <span className="font-medium text-sm">Home</span>
-              </Link>
-              {getNavItems().map((item) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg ${
-                      isActive 
-                        ? 'bg-indigo-600 text-white' 
-                        : isDark ? 'text-slate-400 hover:bg-slate-700' : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <item.icon size={18} />
-                    <span className="font-medium text-sm">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                <span className="text-sm font-medium">{isDark ? 'Light' : 'Dark'}</span>
+              </button>
+              <button
+                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+              >
+                <LogOut size={18} />
+                <span className="text-sm font-medium">Logout</span>
+              </button>
+            </div>
           </div>
-        )}
+        </div>
 
         {/* Main Content Area */}
         <main className={`flex-1 overflow-auto p-6 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
