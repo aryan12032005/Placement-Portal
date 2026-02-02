@@ -117,81 +117,81 @@ export const Hackathons: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-1">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="p-3 bg-white/20 backdrop-blur rounded-xl">
-            <Trophy size={32} />
+      <div className="bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 rounded-2xl p-5 md:p-8 text-white shadow-xl">
+        <div className="flex items-center gap-3 md:gap-4 mb-4">
+          <div className="p-2.5 md:p-3 bg-white/20 backdrop-blur rounded-xl">
+            <Trophy size={24} className="md:w-8 md:h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Hackathons</h1>
-            <p className="text-white/80">Discover and participate in exciting hackathons</p>
+            <h1 className="text-xl md:text-3xl font-bold">Hackathons</h1>
+            <p className="text-white/80 text-sm md:text-base">Discover and participate in hackathons</p>
           </div>
         </div>
         
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center gap-2">
-              <Zap size={20} className="text-yellow-300" />
-              <span className="text-2xl font-bold">{hackathonsData.filter(h => h.status === 'Ongoing').length}</span>
+        <div className="grid grid-cols-4 gap-2 md:gap-4 mt-4 md:mt-6">
+          <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 md:p-4">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Zap size={16} className="text-yellow-300 md:w-5 md:h-5" />
+              <span className="text-lg md:text-2xl font-bold">{hackathonsData.filter(h => h.status === 'Ongoing').length}</span>
             </div>
-            <p className="text-sm text-white/70">Ongoing</p>
+            <p className="text-[10px] md:text-sm text-white/70">Ongoing</p>
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center gap-2">
-              <Rocket size={20} className="text-blue-300" />
-              <span className="text-2xl font-bold">{hackathonsData.filter(h => h.status === 'Upcoming').length}</span>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 md:p-4">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Rocket size={16} className="text-blue-300 md:w-5 md:h-5" />
+              <span className="text-lg md:text-2xl font-bold">{hackathonsData.filter(h => h.status === 'Upcoming').length}</span>
             </div>
-            <p className="text-sm text-white/70">Upcoming</p>
+            <p className="text-[10px] md:text-sm text-white/70">Upcoming</p>
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center gap-2">
-              <Code size={20} className="text-green-300" />
-              <span className="text-2xl font-bold">{hackathonsData.filter(h => h.mode === 'Online').length}</span>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 md:p-4">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Code size={16} className="text-green-300 md:w-5 md:h-5" />
+              <span className="text-lg md:text-2xl font-bold">{hackathonsData.filter(h => h.mode === 'Online').length}</span>
             </div>
-            <p className="text-sm text-white/70">Online</p>
+            <p className="text-[10px] md:text-sm text-white/70">Online</p>
           </div>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center gap-2">
-              <Brain size={20} className="text-pink-300" />
-              <span className="text-2xl font-bold">{hackathonsData.length}</span>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-2.5 md:p-4">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Brain size={16} className="text-pink-300 md:w-5 md:h-5" />
+              <span className="text-lg md:text-2xl font-bold">{hackathonsData.length}</span>
             </div>
-            <p className="text-sm text-white/70">Total</p>
+            <p className="text-[10px] md:text-sm text-white/70">Total</p>
           </div>
         </div>
       </div>
 
       {/* Search & Filters */}
-      <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-4`}>
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-3 md:p-4`}>
+        <div className="flex flex-col gap-3">
           {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input
               type="text"
-              placeholder="Search hackathons, organizers, or tags..."
+              placeholder="Search hackathons..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-11 pr-4 py-3 rounded-xl border outline-none transition-all ${
+              className={`w-full pl-9 pr-4 py-2.5 rounded-xl border outline-none transition-all text-sm ${
                 isDark 
-                  ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-indigo-500' 
-                  : 'bg-slate-50 border-slate-200 focus:border-indigo-500'
+                  ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-violet-500' 
+                  : 'bg-slate-50 border-slate-200 focus:border-violet-500'
               }`}
             />
           </div>
           
           {/* Filters */}
-          <div className="flex gap-3">
+          <div className="flex gap-2 flex-wrap">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className={`px-4 py-3 rounded-xl border outline-none ${
+              className={`px-3 py-2 rounded-xl border outline-none text-sm flex-1 min-w-[100px] ${
                 isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-slate-50 border-slate-200'
               }`}
             >
-              <option value="all">All Status</option>
+              <option value="all">Status</option>
               <option value="Ongoing">Ongoing</option>
               <option value="Upcoming">Upcoming</option>
             </select>
@@ -199,11 +199,11 @@ export const Hackathons: React.FC = () => {
             <select
               value={filterMode}
               onChange={(e) => setFilterMode(e.target.value)}
-              className={`px-4 py-3 rounded-xl border outline-none ${
+              className={`px-3 py-2 rounded-xl border outline-none text-sm flex-1 min-w-[90px] ${
                 isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-slate-50 border-slate-200'
               }`}
             >
-              <option value="all">All Modes</option>
+              <option value="all">Mode</option>
               <option value="Online">Online</option>
               <option value="Offline">Offline</option>
               <option value="Hybrid">Hybrid</option>
@@ -212,11 +212,11 @@ export const Hackathons: React.FC = () => {
             <select
               value={filterDifficulty}
               onChange={(e) => setFilterDifficulty(e.target.value)}
-              className={`px-4 py-3 rounded-xl border outline-none ${
+              className={`px-3 py-2 rounded-xl border outline-none text-sm flex-1 min-w-[90px] ${
                 isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-slate-50 border-slate-200'
               }`}
             >
-              <option value="all">All Levels</option>
+              <option value="all">Level</option>
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>
               <option value="Advanced">Advanced</option>
@@ -224,13 +224,13 @@ export const Hackathons: React.FC = () => {
             
             <button
               onClick={() => setFilterRecent(!filterRecent)}
-              className={`px-4 py-3 rounded-xl border flex items-center gap-2 transition-all ${
+              className={`px-3 py-2 rounded-xl border flex items-center gap-1.5 transition-all text-sm ${
                 filterRecent
-                  ? 'bg-indigo-600 border-indigo-600 text-white'
+                  ? 'bg-violet-600 border-violet-600 text-white'
                   : isDark ? 'bg-slate-700 border-slate-600 text-white hover:bg-slate-600' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
               }`}
             >
-              <Sparkles size={16} />
+              <Sparkles size={14} />
               Recent
             </button>
           </div>
@@ -238,7 +238,7 @@ export const Hackathons: React.FC = () => {
       </div>
 
       {/* Hackathons Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {filteredHackathons.map((hackathon) => {
           const daysLeft = getDaysLeft(hackathon.deadline);
           const isRecent = isRecentlyPosted(hackathon.postedDate);
@@ -246,47 +246,47 @@ export const Hackathons: React.FC = () => {
           return (
             <div 
               key={hackathon.id} 
-              className={`${isDark ? 'bg-slate-800 border-slate-700 hover:border-slate-600' : 'bg-white border-slate-200 hover:border-slate-300'} rounded-xl border overflow-hidden transition-all hover:shadow-lg group relative`}
+              className={`${isDark ? 'bg-slate-800 border-slate-700 hover:border-slate-600' : 'bg-white border-slate-200 hover:border-slate-300'} rounded-2xl border overflow-hidden transition-all hover:shadow-lg group relative`}
             >
               {/* Recently Posted Badge */}
               {isRecent && (
                 <div className="absolute top-3 right-3 z-10">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white flex items-center gap-1 shadow-lg">
-                    <Sparkles size={12} />
+                  <span className="px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold bg-gradient-to-r from-violet-500 to-purple-500 text-white flex items-center gap-1 shadow-lg">
+                    <Sparkles size={10} className="md:w-3 md:h-3" />
                     New
                   </span>
                 </div>
               )}
               
               {/* Card Header */}
-              <div className="p-6">
-                <div className="flex items-start gap-4">
+              <div className="p-4 md:p-6">
+                <div className="flex items-start gap-3 md:gap-4">
                   {/* Logo */}
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getLogoColor(hackathon.organizer)} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
+                  <div className={`w-11 h-11 md:w-14 md:h-14 rounded-xl bg-gradient-to-br ${getLogoColor(hackathon.organizer)} flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg flex-shrink-0`}>
                     {hackathon.logo}
                   </div>
                   
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-800'} group-hover:text-indigo-600 transition-colors`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className={`font-bold text-base md:text-lg truncate ${isDark ? 'text-white' : 'text-slate-800'} group-hover:text-violet-600 transition-colors`}>
                           {hackathon.title}
                         </h3>
-                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        <p className={`text-xs md:text-sm truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                           by {hackathon.organizer}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(hackathon.status)} ${isRecent ? 'mr-16' : ''}`}>
+                      <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold whitespace-nowrap ${getStatusColor(hackathon.status)} ${isRecent ? 'mr-12 md:mr-16' : ''}`}>
                         {hackathon.status}
                       </span>
                     </div>
                     
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {(Array.isArray(hackathon.tags) ? hackathon.tags : []).map((tag, idx) => (
+                    <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
+                      {(Array.isArray(hackathon.tags) ? hackathon.tags : []).slice(0, 3).map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
+                          className={`px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs font-medium ${
                             isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-100 text-slate-600'
                           }`}
                         >
@@ -298,47 +298,47 @@ export const Hackathons: React.FC = () => {
                 </div>
                 
                 {/* Description */}
-                <p className={`mt-4 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'} line-clamp-2`}>
+                <p className={`mt-3 md:mt-4 text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'} line-clamp-2`}>
                   {hackathon.description}
                 </p>
                 
                 {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-indigo-500" />
+                <div className="grid grid-cols-2 gap-2 md:gap-4 mt-3 md:mt-4">
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <Calendar size={14} className="text-violet-500 md:w-4 md:h-4" />
                     <div>
-                      <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Deadline</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
-                        {new Date(hackathon.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <p className={`text-[10px] md:text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Deadline</p>
+                      <p className={`text-xs md:text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
+                        {new Date(hackathon.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Award size={16} className="text-amber-500" />
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <Award size={14} className="text-amber-500 md:w-4 md:h-4" />
                     <div>
-                      <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Prize</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
+                      <p className={`text-[10px] md:text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Prize</p>
+                      <p className={`text-xs md:text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
                         {hackathon.prize}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Users size={16} className="text-green-500" />
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <Users size={14} className="text-green-500 md:w-4 md:h-4" />
                     <div>
-                      <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Participants</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
+                      <p className={`text-[10px] md:text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Participants</p>
+                      <p className={`text-xs md:text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
                         {hackathon.participants.toLocaleString()}+
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-rose-500" />
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <MapPin size={14} className="text-rose-500 md:w-4 md:h-4" />
                     <div>
-                      <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Mode</p>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
+                      <p className={`text-[10px] md:text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Mode</p>
+                      <p className={`text-xs md:text-sm font-medium ${isDark ? 'text-white' : 'text-slate-700'}`}>
                         {hackathon.mode}
                       </p>
                     </div>
@@ -347,15 +347,15 @@ export const Hackathons: React.FC = () => {
               </div>
               
               {/* Card Footer */}
-              <div className={`px-6 py-4 border-t ${isDark ? 'border-slate-700 bg-slate-800/50' : 'border-slate-100 bg-slate-50'} flex items-center justify-between`}>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${getDifficultyColor(hackathon.difficulty)}`}>
+              <div className={`px-4 md:px-6 py-3 md:py-4 border-t ${isDark ? 'border-slate-700 bg-slate-800/50' : 'border-slate-100 bg-slate-50'} flex items-center justify-between gap-2`}>
+                <div className="flex items-center gap-1.5 md:gap-3 flex-wrap">
+                  <span className={`px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs font-semibold ${getDifficultyColor(hackathon.difficulty)}`}>
                     {hackathon.difficulty}
                   </span>
                   {daysLeft > 0 && daysLeft <= 7 && (
-                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-700">
-                      <Clock size={12} />
-                      {daysLeft} days left
+                    <span className="flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs font-semibold bg-red-100 text-red-700">
+                      <Clock size={10} className="md:w-3 md:h-3" />
+                      {daysLeft}d left
                     </span>
                   )}
                 </div>
@@ -364,10 +364,10 @@ export const Hackathons: React.FC = () => {
                   href={hackathon.registrationUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
+                  className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white text-xs md:text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg"
                 >
-                  Register Now
-                  <ExternalLink size={14} />
+                  Register
+                  <ExternalLink size={12} className="md:w-3.5 md:h-3.5" />
                 </a>
               </div>
             </div>
@@ -377,10 +377,10 @@ export const Hackathons: React.FC = () => {
 
       {/* Empty State */}
       {filteredHackathons.length === 0 && (
-        <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-12 text-center`}>
-          <Trophy size={48} className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
-          <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>No hackathons found</h3>
-          <p className={`mt-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Try adjusting your search or filters</p>
+        <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-2xl border p-8 md:p-12 text-center`}>
+          <Trophy size={40} className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+          <h3 className={`text-base md:text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>No hackathons found</h3>
+          <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Try adjusting your filters</p>
         </div>
       )}
     </div>

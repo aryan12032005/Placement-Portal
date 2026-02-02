@@ -139,40 +139,40 @@ export const StudentProfile: React.FC = () => {
     }
   };
 
-  const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border`;
-  const labelClass = `block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`;
-  const inputClass = `w-full px-4 py-2.5 rounded-lg border outline-none transition-all ${
+  const cardClass = `${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-2xl border`;
+  const labelClass = `block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`;
+  const inputClass = `w-full px-3 md:px-4 py-2 md:py-2.5 rounded-xl border outline-none transition-all text-sm ${
     isDark 
-      ? 'bg-slate-700 border-slate-600 text-white focus:border-indigo-500' 
-      : 'bg-white border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+      ? 'bg-slate-700 border-slate-600 text-white focus:border-violet-500' 
+      : 'bg-white border-slate-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-100'
   }`;
-  const displayClass = `py-2.5 px-4 rounded-lg ${isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'}`;
+  const displayClass = `py-2 md:py-2.5 px-3 md:px-4 rounded-xl text-sm ${isDark ? 'bg-slate-700 text-white' : 'bg-slate-50 text-slate-800'}`;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 px-1">
       {/* Header */}
-      <div className={`${cardClass} p-6`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+      <div className={`${cardClass} p-4 md:p-6`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             {/* Profile Picture with Upload */}
             <div className="relative group">
               {formData.profilePicture ? (
                 <img 
                   src={formData.profilePicture} 
                   alt="Profile" 
-                  className="w-16 h-16 rounded-xl object-cover"
+                  className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover"
                 />
               ) : (
-                <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-violet-600 rounded-xl flex items-center justify-center text-white text-xl md:text-2xl font-bold">
                   {formData.name.charAt(0).toUpperCase()}
                 </div>
               )}
               {/* Upload overlay */}
               <label className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                 {uploadingPicture ? (
-                  <Loader2 size={20} className="text-white animate-spin" />
+                  <Loader2 size={18} className="text-white animate-spin" />
                 ) : (
-                  <Camera size={20} className="text-white" />
+                  <Camera size={18} className="text-white" />
                 )}
                 <input
                   type="file"
@@ -194,18 +194,18 @@ export const StudentProfile: React.FC = () => {
               )}
             </div>
             <div>
-              <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+              <h1 className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
                 {formData.name || 'Your Name'}
               </h1>
-              <p className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                <Mail size={14} /> {user?.email}
+              <p className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                <Mail size={12} className="md:w-3.5 md:h-3.5" /> {user?.email}
               </p>
             </div>
           </div>
           {!isEditing && (
             <button 
               onClick={() => setIsEditing(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-medium transition-colors text-sm"
             >
               <Edit2 size={16} /> Edit Profile
             </button>
@@ -214,27 +214,27 @@ export const StudentProfile: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2 md:gap-4">
         {[
           { label: 'CGPA', value: formData.cgpa || 0 },
           { label: 'Grad Year', value: formData.graduationYear },
           { label: 'Skills', value: formData.skills.split(',').filter(s => s.trim()).length },
           { label: 'Resume', value: formData.resumeUrl ? '✓' : '✗' },
         ].map((stat) => (
-          <div key={stat.label} className={`${cardClass} p-4 text-center`}>
-            <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{stat.value}</p>
-            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
+          <div key={stat.label} className={`${cardClass} p-2.5 md:p-4 text-center`}>
+            <p className={`text-lg md:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{stat.value}</p>
+            <p className={`text-[10px] md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.label}</p>
           </div>
         ))}
       </div>
       
-      <form onSubmit={handleUpdate} className="space-y-6">
+      <form onSubmit={handleUpdate} className="space-y-4 md:space-y-6">
         {/* Personal Information */}
-        <div className={`${cardClass} p-6`}>
-          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            <UserIcon size={20} className="text-indigo-600" /> Personal Information
+        <div className={`${cardClass} p-4 md:p-6`}>
+          <h3 className={`text-base md:text-lg font-semibold mb-4 md:mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <UserIcon size={18} className="text-violet-600 md:w-5 md:h-5" /> Personal Information
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div>
               <label className={labelClass}>Full Name</label>
               {isEditing ? (
@@ -261,7 +261,7 @@ export const StudentProfile: React.FC = () => {
               ) : (
                 <p className={displayClass}>
                   {formData.linkedIn ? (
-                    <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline flex items-center gap-2">
+                    <a href={formData.linkedIn} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline flex items-center gap-2">
                       <Linkedin size={16} /> View Profile
                     </a>
                   ) : 'Not provided'}
@@ -281,11 +281,11 @@ export const StudentProfile: React.FC = () => {
         </div>
 
         {/* Education Details */}
-        <div className={`${cardClass} p-6`}>
-          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            <GraduationCap size={20} className="text-indigo-600" /> Education Details
+        <div className={`${cardClass} p-4 md:p-6`}>
+          <h3 className={`text-base md:text-lg font-semibold mb-4 md:mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <GraduationCap size={18} className="text-violet-600 md:w-5 md:h-5" /> Education Details
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div>
               <label className={labelClass}>College / University</label>
               {isEditing ? (
@@ -350,57 +350,57 @@ export const StudentProfile: React.FC = () => {
                     }
                   }} placeholder="8.5" />
               ) : (
-                <p className={displayClass}><span className="text-xl font-bold text-indigo-600">{formData.cgpa}</span> / 10</p>
+                <p className={displayClass}><span className="text-lg md:text-xl font-bold text-violet-600">{formData.cgpa}</span> / 10</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Skills & Resume */}
-        <div className={`${cardClass} p-6`}>
-          <h3 className={`text-lg font-semibold mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            <FileText size={20} className="text-indigo-600" /> Skills & Resume
+        <div className={`${cardClass} p-4 md:p-6`}>
+          <h3 className={`text-base md:text-lg font-semibold mb-4 md:mb-5 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
+            <FileText size={18} className="text-violet-600 md:w-5 md:h-5" /> Skills & Resume
           </h3>
           
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <label className={labelClass}>Technical Skills (comma separated)</label>
             {isEditing ? (
               <textarea rows={3} className={inputClass} value={formData.skills}
                 onChange={(e) => setFormData({...formData, skills: e.target.value})} placeholder="React, Node.js, Python..." />
             ) : (
-              <div className="flex flex-wrap gap-2 py-2">
+              <div className="flex flex-wrap gap-1.5 md:gap-2 py-2">
                 {formData.skills.split(',').filter(s => s.trim()).map((skill, i) => (
-                  <span key={i} className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                    isDark ? 'bg-slate-700 text-slate-300' : 'bg-indigo-50 text-indigo-700'
+                  <span key={i} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium ${
+                    isDark ? 'bg-slate-700 text-slate-300' : 'bg-violet-50 text-violet-700'
                   }`}>{skill.trim()}</span>
                 ))}
-                {!formData.skills && <span className={isDark ? 'text-slate-500' : 'text-slate-400'}>No skills added</span>}
+                {!formData.skills && <span className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>No skills added</span>}
               </div>
             )}
           </div>
 
           <div>
             <label className={labelClass}>Resume</label>
-            <div className={`border-2 border-dashed rounded-xl p-8 text-center ${
+            <div className={`border-2 border-dashed rounded-xl p-6 md:p-8 text-center ${
               formData.resumeUrl 
                 ? isDark ? 'border-emerald-700 bg-emerald-900/20' : 'border-emerald-300 bg-emerald-50' 
-                : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-slate-300 hover:border-indigo-400'
+                : isDark ? 'border-slate-600 hover:border-slate-500' : 'border-slate-300 hover:border-violet-400'
             }`}>
               {uploading ? (
-                <div className="flex items-center justify-center gap-3 text-indigo-600">
-                  <Loader2 size={24} className="animate-spin" />
-                  <span className="font-medium">Uploading...</span>
+                <div className="flex items-center justify-center gap-3 text-violet-600">
+                  <Loader2 size={20} className="animate-spin" />
+                  <span className="font-medium text-sm">Uploading...</span>
                 </div>
               ) : formData.resumeUrl ? (
-                <div className="flex flex-col items-center gap-3">
-                  <FileText className="text-emerald-600" size={32} />
-                  <p className={`font-medium ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Resume Uploaded</p>
+                <div className="flex flex-col items-center gap-2.5 md:gap-3">
+                  <FileText className="text-emerald-600" size={28} />
+                  <p className={`font-medium text-sm ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>Resume Uploaded</p>
                   <a href={formData.resumeUrl} target="_blank" rel="noopener noreferrer" 
-                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
+                    className="bg-emerald-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-emerald-700 transition-colors text-sm">
                     View Resume
                   </a>
                   {isEditing && (
-                    <button type="button" onClick={handleRemoveResume} className="text-sm text-red-500 hover:text-red-600">
+                    <button type="button" onClick={handleRemoveResume} className="text-xs md:text-sm text-red-500 hover:text-red-600">
                       Remove
                     </button>
                   )}
@@ -409,9 +409,9 @@ export const StudentProfile: React.FC = () => {
                 <>
                   <input type="file" accept=".pdf" onChange={handleResumeUpload} className="hidden" id="resume-upload" disabled={!isEditing} />
                   <label htmlFor="resume-upload" className={`flex flex-col items-center gap-2 ${isEditing ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
-                    <Upload className={isDark ? 'text-slate-500' : 'text-slate-400'} size={32} />
-                    <p className={isDark ? 'text-slate-400' : 'text-slate-600'}>Click to upload resume</p>
-                    <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>PDF format, max 5MB</p>
+                    <Upload className={isDark ? 'text-slate-500' : 'text-slate-400'} size={28} />
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Click to upload resume</p>
+                    <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>PDF format, max 5MB</p>
                   </label>
                 </>
               )}
@@ -421,15 +421,15 @@ export const StudentProfile: React.FC = () => {
 
         {/* Actions */}
         {isEditing && (
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-2 md:gap-3 justify-end">
             <button type="button" onClick={() => setIsEditing(false)}
-              className={`px-5 py-2.5 rounded-lg font-medium border transition-colors ${
+              className={`px-4 md:px-5 py-2 md:py-2.5 rounded-xl font-medium border transition-colors text-sm ${
                 isDark ? 'border-slate-600 text-slate-300 hover:bg-slate-700' : 'border-slate-300 text-slate-600 hover:bg-slate-50'
               }`}>
               Cancel
             </button>
-            <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center gap-2 transition-colors">
-              <Save size={18} /> Save Changes
+            <button type="submit" className="bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors text-sm">
+              <Save size={16} /> Save
             </button>
           </div>
         )}

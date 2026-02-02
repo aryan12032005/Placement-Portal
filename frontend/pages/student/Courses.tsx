@@ -142,47 +142,47 @@ export const Courses: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-1">
       {/* Header */}
-      <div className={`${isDark ? 'bg-gradient-to-r from-emerald-900/50 to-teal-900/50' : 'bg-gradient-to-r from-emerald-500 to-teal-600'} rounded-2xl p-6 text-white relative overflow-hidden`}>
+      <div className={`${isDark ? 'bg-gradient-to-r from-violet-900/50 to-purple-900/50' : 'bg-gradient-to-r from-violet-600 to-purple-600'} rounded-2xl p-5 md:p-6 text-white relative overflow-hidden`}>
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-2.5 md:gap-3 mb-2">
             <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
-              <BookOpen size={24} />
+              <BookOpen size={20} className="md:w-6 md:h-6" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">Learning Hub</h1>
+            <h1 className="text-xl md:text-3xl font-bold">Learning Hub</h1>
           </div>
-          <p className="text-emerald-100 max-w-2xl">
-            Free YouTube courses, video tutorials, notes, and resources to ace your interviews and build your career.
+          <p className="text-purple-100 text-sm md:text-base max-w-2xl">
+            Free YouTube courses, tutorials, and resources
           </p>
           
-          <div className="flex flex-wrap gap-6 mt-6">
+          <div className="flex flex-wrap gap-4 md:gap-6 mt-4 md:mt-6">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/20 rounded-lg">
-                <Youtube size={18} />
+              <div className="p-1.5 md:p-2 bg-white/20 rounded-lg">
+                <Youtube size={16} className="md:w-[18px] md:h-[18px]" />
               </div>
               <div>
-                <p className="text-xl font-bold">{courses.length}+</p>
-                <p className="text-xs text-emerald-200">Free Courses</p>
+                <p className="text-lg md:text-xl font-bold">{courses.length}+</p>
+                <p className="text-[10px] md:text-xs text-purple-200">Free Courses</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/20 rounded-lg">
-                <FileText size={18} />
+              <div className="p-1.5 md:p-2 bg-white/20 rounded-lg">
+                <FileText size={16} className="md:w-[18px] md:h-[18px]" />
               </div>
               <div>
-                <p className="text-xl font-bold">{resources.length}+</p>
-                <p className="text-xs text-emerald-200">Resources</p>
+                <p className="text-lg md:text-xl font-bold">{resources.length}+</p>
+                <p className="text-[10px] md:text-xs text-purple-200">Resources</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/20 rounded-lg">
-                <Award size={18} />
+              <div className="p-1.5 md:p-2 bg-white/20 rounded-lg">
+                <Award size={16} className="md:w-[18px] md:h-[18px]" />
               </div>
               <div>
-                <p className="text-xl font-bold">100%</p>
-                <p className="text-xs text-emerald-200">Free Access</p>
+                <p className="text-lg md:text-xl font-bold">100%</p>
+                <p className="text-[10px] md:text-xs text-purple-200">Free Access</p>
               </div>
             </div>
           </div>
@@ -190,25 +190,25 @@ export const Courses: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className={`flex gap-2 p-1 ${isDark ? 'bg-slate-800' : 'bg-slate-100'} rounded-xl w-fit`}>
+      <div className={`flex gap-1 md:gap-2 p-1 ${isDark ? 'bg-slate-800' : 'bg-slate-100'} rounded-xl overflow-x-auto`}>
         {[
           { id: 'courses', label: 'Courses', icon: BookOpen },
           { id: 'resources', label: 'Resources', icon: FileText },
-          { id: 'my-learning', label: 'Bookmarked', icon: Bookmark },
+          { id: 'my-learning', label: 'Saved', icon: Bookmark },
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+            className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-lg font-medium text-xs md:text-sm transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-indigo-600 text-white shadow-lg'
+                ? 'bg-violet-600 text-white shadow-lg'
                 : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <tab.icon size={16} />
+            <tab.icon size={14} className="md:w-4 md:h-4" />
             {tab.label}
             {tab.id === 'my-learning' && bookmarkedCourses.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">
+              <span className="ml-0.5 md:ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-[10px] md:text-xs">
                 {bookmarkedCourses.length}
               </span>
             )}
@@ -217,20 +217,20 @@ export const Courses: React.FC = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-4`}>
-        <div className="flex flex-col lg:flex-row gap-4">
+      <div className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-3 md:p-4`}>
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
           <div className="flex-1 relative">
-            <Search size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
+            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
             <input
               type="text"
-              placeholder="Search courses, topics, or instructors..."
+              placeholder="Search courses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border ${
+              className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm ${
                 isDark 
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
                   : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-500'
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              } focus:outline-none focus:ring-2 focus:ring-violet-500`}
             />
           </div>
           
@@ -238,11 +238,11 @@ export const Courses: React.FC = () => {
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className={`px-4 py-2.5 rounded-xl border ${
+              className={`px-3 md:px-4 py-2.5 rounded-xl border text-sm ${
                 isDark 
                   ? 'bg-slate-700 border-slate-600 text-white' 
                   : 'bg-slate-50 border-slate-200 text-slate-800'
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              } focus:outline-none focus:ring-2 focus:ring-violet-500`}
             >
               <option value="All">All Levels</option>
               <option value="Beginner">Beginner</option>
@@ -253,20 +253,20 @@ export const Courses: React.FC = () => {
         </div>
         
         {activeTab === 'courses' && (
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+          <div className="flex gap-1.5 md:gap-2 mt-3 md:mt-4 overflow-x-auto pb-2 -mx-1 px-1">
             {categories.map(cat => (
               <button
                 key={cat.name}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === cat.name
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-violet-600 text-white'
                     : isDark 
                       ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' 
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                <cat.icon size={14} />
+                <cat.icon size={12} className="md:w-3.5 md:h-3.5" />
                 {cat.name}
               </button>
             ))}
@@ -276,20 +276,20 @@ export const Courses: React.FC = () => {
 
       {/* Courses Grid */}
       {activeTab === 'courses' && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredCourses.length === 0 ? (
-            <div className={`col-span-full ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-12 text-center`}>
-              <BookOpen className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} size={48} />
-              <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>No courses found matching your criteria</p>
+            <div className={`col-span-full ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border p-8 md:p-12 text-center`}>
+              <BookOpen className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-slate-400'}`} size={40} />
+              <p className={`text-sm md:text-base ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No courses found</p>
             </div>
           ) : (
             filteredCourses.map(course => (
               <div 
                 key={course.id}
-                className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-xl border overflow-hidden hover:shadow-xl transition-all group`}
+                className={`${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} rounded-2xl border overflow-hidden hover:shadow-xl transition-all group`}
               >
                 <div 
-                  className="relative h-40 overflow-hidden cursor-pointer"
+                  className="relative h-36 md:h-40 overflow-hidden cursor-pointer"
                   onClick={() => openCourse(course)}
                 >
                   <img 
